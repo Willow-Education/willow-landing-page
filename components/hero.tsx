@@ -9,7 +9,7 @@ import { useReducedMotion, useIsMobile } from "@/hooks/use-media-query";
 
 // Image paths for staged loading
 const CRITICAL_IMAGES = ["/hero-assets/hero-img-ui.png"];
-const SECONDARY_IMAGES = ["/hero-assets/hero-img-slide.png"];
+const SECONDARY_IMAGES = ["/hero-assets/hero-img-slide-v2.png"];
 const DECORATIVE_IMAGES = [
   "/hero-assets/paper.avif",
   "/hero-assets/paper-scrap-1.svg",
@@ -422,7 +422,7 @@ export function Hero() {
                 aria-hidden="true"
               />
               <Image
-                src="/hero-assets/hero-img-slide.png"
+                src="/hero-assets/hero-img-slide-v2.png"
                 alt="Curriculum slide preview"
                 width={927}
                 height={532}
