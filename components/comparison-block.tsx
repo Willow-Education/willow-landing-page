@@ -11,6 +11,8 @@ interface ComparisonBlockProps {
   overgradCaption: string;
   willowImage?: string;
   overgradImage?: string;
+  willowContent?: React.ReactNode;
+  overgradContent?: React.ReactNode;
   reversed?: boolean;
 }
 
@@ -21,6 +23,8 @@ export function ComparisonBlock({
   overgradCaption,
   willowImage,
   overgradImage,
+  willowContent,
+  overgradContent,
   reversed = false,
 }: ComparisonBlockProps) {
   const ref = useRef(null);
@@ -28,36 +32,44 @@ export function ComparisonBlock({
 
   const overgradPanel = (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-video rounded-card overflow-hidden">
-        {overgradImage ? (
-          <Image
-            src={overgradImage}
-            alt={overgradCaption}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-[#D1D5DB]" />
-        )}
-      </div>
+      {overgradContent ? (
+        overgradContent
+      ) : (
+        <div className="relative aspect-video rounded-card overflow-hidden">
+          {overgradImage ? (
+            <Image
+              src={overgradImage}
+              alt={overgradCaption}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-[#D1D5DB]" />
+          )}
+        </div>
+      )}
       <p className="text-sm text-secondary">{overgradCaption}</p>
     </div>
   );
 
   const willowPanel = (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-video rounded-card overflow-hidden">
-        {willowImage ? (
-          <Image
-            src={willowImage}
-            alt={willowCaption}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-[#062F29]" />
-        )}
-      </div>
+      {willowContent ? (
+        willowContent
+      ) : (
+        <div className="relative aspect-video rounded-card overflow-hidden">
+          {willowImage ? (
+            <Image
+              src={willowImage}
+              alt={willowCaption}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-[#062F29]" />
+          )}
+        </div>
+      )}
       <p className="text-sm text-secondary">{willowCaption}</p>
     </div>
   );

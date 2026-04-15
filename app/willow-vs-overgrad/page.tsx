@@ -2,11 +2,13 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import Image from "next/image";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { FinalCTA } from "@/components/final-cta";
 import { ComparisonBlock } from "@/components/comparison-block";
 import { CheckCircle } from "phosphor-react";
+import { WillowLogo } from "@/components/willow-logo";
 
 /* ─── Comparison table data ─── */
 
@@ -115,8 +117,9 @@ function HeroSection() {
           transition={{ duration: 0.6 }}
           className="max-w-3xl"
         >
-          <h1 className="text-heading text-[40px] md:text-[56px] mb-6">
-            Overgrad records outcomes.{" "}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl text-heading mb-6">
+            <span className="whitespace-nowrap">Overgrad records outcomes.</span>
+            <br />
             <span className="underline decoration-heading decoration-2 underline-offset-4">
               Willow shapes them.
             </span>
@@ -160,16 +163,16 @@ function ComparisonTableSection() {
                     Feature
                   </th>
                   <th className="text-left py-4 px-8 w-[37.5%]">
-                    <div className="flex items-center gap-2">
-                      <span className="font-heading font-medium text-heading text-lg">
-                        Willow Education
-                      </span>
-                    </div>
+                    <WillowLogo className="h-[25.2px] w-auto" />
                   </th>
                   <th className="text-left py-4 pl-8 w-[37.5%]">
-                    <span className="font-heading font-medium text-secondary text-lg">
-                      Overgrad
-                    </span>
+                    <Image
+                      src="/vs-overgrad/overgrad-logo.svg"
+                      alt="Overgrad"
+                      width={495}
+                      height={107}
+                      className="h-6 w-auto"
+                    />
                   </th>
                 </tr>
               </thead>
@@ -212,9 +215,7 @@ function ComparisonTableSection() {
                 </p>
                 <div className="flex flex-col gap-3">
                   <div className="bg-[#062F29]/[0.03] rounded-lg p-3">
-                    <p className="text-xs font-medium text-[#062F29] mb-1">
-                      Willow
-                    </p>
+                    <WillowLogo className="h-[16.8px] w-auto mb-1" />
                     <div className="flex items-start gap-2">
                       <CheckCircle
                         size={16}
@@ -225,9 +226,13 @@ function ComparisonTableSection() {
                     </div>
                   </div>
                   <div className="p-3">
-                    <p className="text-xs font-medium text-secondary mb-1">
-                      Overgrad
-                    </p>
+                    <Image
+                      src="/vs-overgrad/overgrad-logo.svg"
+                      alt="Overgrad"
+                      width={495}
+                      height={107}
+                      className="h-4 w-auto mb-1"
+                    />
                     <span className="text-secondary text-sm">
                       {row.overgrad}
                     </span>
@@ -259,6 +264,28 @@ export default function WillowVsOvergrad() {
             willowCaption={section.willowCaption}
             overgradCaption={section.overgradCaption}
             reversed={i % 2 === 1}
+            {...(i === 0 && {
+              willowContent: (
+                <div className="relative aspect-video rounded-card overflow-hidden bg-[#062F29] p-6">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src="/hero-assets/hero-img-ui.png"
+                      alt="Willow curriculum interface"
+                      width={1223}
+                      height={919}
+                      className="absolute top-0 left-0 w-full h-auto rounded-md"
+                    />
+                    <Image
+                      src="/hero-assets/hero-img-slide-v2.png"
+                      alt="Curriculum slide preview"
+                      width={927}
+                      height={532}
+                      className="absolute bottom-6 right-12 w-[55%] h-auto drop-shadow-2xl rounded-md"
+                    />
+                  </div>
+                </div>
+              ),
+            })}
           />
         ))}
         <FinalCTA />
