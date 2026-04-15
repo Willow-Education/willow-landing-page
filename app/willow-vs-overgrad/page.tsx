@@ -55,6 +55,16 @@ const comparisonRows = [
 const comparisonSections = [
   {
     headline:
+      "Assessment and Durable Skills",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+    overgradCaption:
+      "Overgrad: Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    willowCaption:
+      "Willow: Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  },
+  {
+    headline:
       "A complete curriculum built in — not a platform you have to build lessons around.",
     description:
       "Willow includes 150+ structured, low-prep lessons that drop directly into your advisory or seminar blocks. Overgrad is a planning tool with no embedded curriculum — your staff still has to find, build, and sequence the instruction themselves.",
@@ -264,7 +274,7 @@ export default function WillowVsOvergrad() {
             willowCaption={section.willowCaption}
             overgradCaption={section.overgradCaption}
             reversed={i % 2 === 1}
-            {...(i === 0 && {
+            {...(i === 1 && {
               willowContent: (
                 <div className="relative aspect-video rounded-card overflow-hidden bg-[#062F29] p-6">
                   <div className="relative w-full h-full">
@@ -283,6 +293,35 @@ export default function WillowVsOvergrad() {
                       className="absolute -bottom-2 right-6 w-[55%] h-auto drop-shadow-2xl rounded-md"
                     />
                   </div>
+                </div>
+              ),
+            })}
+            {...(i === 1 && {
+              overgradContent: (
+                <Image
+                  src="/vs-overgrad/overgrad-basic-support.png"
+                  alt="Overgrad basic AI chat and support center"
+                  width={1200}
+                  height={800}
+                  className="w-full h-auto rounded-card"
+                />
+              ),
+              willowContent: (
+                <div className="flex flex-col gap-3">
+                  <Image
+                    src="/vs-overgrad/willow-alma-student-experience-1.png"
+                    alt="Willow Alma AI career coach — student experience"
+                    width={1200}
+                    height={800}
+                    className="w-full h-auto rounded-card"
+                  />
+                  <Image
+                    src="/vs-overgrad/willow-alma-student-experience-2.png"
+                    alt="Willow Alma AI career coach — personalized guidance"
+                    width={1200}
+                    height={800}
+                    className="w-full h-auto rounded-card"
+                  />
                 </div>
               ),
             })}
