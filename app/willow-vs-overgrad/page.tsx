@@ -163,7 +163,7 @@ function ComparisonTableSection() {
                     Feature
                   </th>
                   <th className="text-left py-4 px-8 w-[37.5%]">
-                    <WillowLogo className="h-[25.2px] w-auto" />
+                    <WillowLogo className="h-[29px] w-auto" />
                   </th>
                   <th className="text-left py-4 pl-8 w-[37.5%]">
                     <Image
@@ -215,7 +215,7 @@ function ComparisonTableSection() {
                 </p>
                 <div className="flex flex-col gap-3">
                   <div className="bg-[#062F29]/[0.03] rounded-lg p-3">
-                    <WillowLogo className="h-[16.8px] w-auto mb-1" />
+                    <WillowLogo className="h-[19px] w-auto mb-1" />
                     <div className="flex items-start gap-2">
                       <CheckCircle
                         size={16}
@@ -280,7 +280,7 @@ export default function WillowVsOvergrad() {
                       alt="Curriculum slide preview"
                       width={927}
                       height={532}
-                      className="absolute bottom-6 right-12 w-[55%] h-auto drop-shadow-2xl rounded-md"
+                      className="absolute bottom-0 right-6 w-[55%] h-auto drop-shadow-2xl rounded-md"
                     />
                   </div>
                 </div>
