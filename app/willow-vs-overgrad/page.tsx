@@ -59,26 +59,26 @@ const comparisonSections = [
     description:
       "Willow includes 150+ structured, low-prep lessons that drop directly into your advisory or seminar blocks. Overgrad is a planning tool with no embedded curriculum — your staff still has to find, build, and sequence the instruction themselves.",
     overgradCaption:
-      "Downloadable slide decks and handouts — no built-in curriculum.",
+      "Overgrad: Downloadable slide decks and handouts — no built-in curriculum.",
     willowCaption:
-      "150+ sequenced lessons with built-in LMS, ready for advisory blocks.",
+      "Willow: 150+ sequenced lessons with built-in LMS, ready for advisory blocks.",
   },
   {
     headline:
       "A career coach for every student — not a help center with a chat box.",
     description:
       "Alma is an AI-native career coach that gives every student 24/7 personalized guidance — from self-discovery through program selection. It scales your counseling team without adding headcount, so staff can focus on the students who need them most.",
-    overgradCaption: "Basic AI chat and support center.",
+    overgradCaption: "Overgrad: Basic AI chat and support center.",
     willowCaption:
-      "Alma — personalized AI career coach that guides students from interests to enrollment.",
+      "Willow: Alma — personalized AI career coach that guides students from interests to enrollment.",
   },
   {
     headline: "Career discovery with short-form videos.",
     description:
       "Willow combines psychometric assessments with short-form, day-in-the-life career videos — the format students already engage with. Overgrad relies on O*NET-based tools and text descriptions that most students skip.",
-    overgradCaption: "Text-based career clusters from O*NET.",
+    overgradCaption: "Overgrad: Text-based career clusters from O*NET.",
     willowCaption:
-      "Video-first career discovery with personality-matched recommendations.",
+      "Willow: Video-first career discovery with personality-matched recommendations.",
   },
   {
     headline:
@@ -86,18 +86,18 @@ const comparisonSections = [
     description:
       "Willow is the only platform where students compare college and professional programs side-by-side with personalized ROI projections. Students see what a program actually costs them, what graduates earn, and whether it's worth the investment — before they apply.",
     overgradCaption:
-      "College-focused search with institutional completion rates.",
+      "Overgrad: College-focused search with institutional completion rates.",
     willowCaption:
-      "College + professional programs with personalized, program-level ROI.",
+      "Willow: College + professional programs with personalized, program-level ROI.",
   },
   {
     headline:
       "See who needs attention — without drowning in spreadsheets.",
     description:
       "Willow's Senior Command Center surfaces what matters: missing documents, FAFSA status, approaching deadlines, and at-risk students — in a clean, scannable view. Counselors act on insights instead of hunting through rows.",
-    overgradCaption: "Dense student data table.",
+    overgradCaption: "Overgrad: Dense student data table.",
     willowCaption:
-      "Action-oriented dashboard with built-in prioritization.",
+      "Willow: Action-oriented dashboard with built-in prioritization.",
   },
 ];
 
@@ -280,7 +280,7 @@ export default function WillowVsOvergrad() {
                       alt="Curriculum slide preview"
                       width={927}
                       height={532}
-                      className="absolute bottom-0 right-6 w-[55%] h-auto drop-shadow-2xl rounded-md"
+                      className="absolute -bottom-2 right-6 w-[55%] h-auto drop-shadow-2xl rounded-md"
                     />
                   </div>
                 </div>
