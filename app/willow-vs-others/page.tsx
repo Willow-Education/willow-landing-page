@@ -131,12 +131,9 @@ function ComparisonTableSection() {
       values: [
         { status: "check", note: "Public Benefit Corporation" },
         { status: "x", note: "" },
-        { status: "x", note: "Now owned by Providence Equity Partners (private equity)" },
         { status: "x", note: "" },
-        {
-          status: "partial",
-          note: "Mission oriented, but not nonprofit or PBC.",
-        },
+        { status: "x", note: "" },
+        { status: "x", note: "" },
       ],
     },
     {
