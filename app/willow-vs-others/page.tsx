@@ -185,23 +185,6 @@ function ComparisonTableSection() {
       ],
     },
     {
-      name: "Career exploration",
-      subtitle: "",
-      values: [
-        { status: "check", note: "Fun assessment, and short-form video content" },
-        {
-          status: "check",
-          note: "Some career assessments, exposure and exploration content",
-        },
-        { status: "check", note: "Strong career exploration tools" },
-        { status: "partial", note: "Some assessments & career resources" },
-        {
-          status: "partial",
-          note: "Career interest inventory and Big 5 assessment",
-        },
-      ],
-    },
-    {
       name: "PathSmith Durable Skills Aligned",
       subtitle: "",
       values: [
