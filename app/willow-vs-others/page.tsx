@@ -144,7 +144,7 @@ function ComparisonTableSection() {
         { status: "x", note: "" },
         { status: "x", note: "" },
         { status: "x", note: "" },
-        { status: "check", note: "Completion rates for institution" },
+        { status: "partial", note: "Demographic Completion Rates" },
       ],
     },
     {
