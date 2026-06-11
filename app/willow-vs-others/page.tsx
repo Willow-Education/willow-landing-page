@@ -197,7 +197,7 @@ function ComparisonTableSection() {
         { status: "partial", note: "Some assessments & career resources" },
         {
           status: "partial",
-          note: "Career interest inventory, Big 5 assessment, career cluster framework, campus videos — counselor-management-first, not student-first",
+          note: "Career interest inventory and Big 5 assessment",
         },
       ],
     },
