@@ -166,7 +166,7 @@ function ComparisonTableSection() {
         },
         {
           status: "partial",
-          note: "Multi-pathway (4-yr, 2-yr, trade, apprenticeship, military, direct-to-work) via SkillUp partnership; no program-level ROI projections",
+          note: "Multi-pathway via SkillUp partnership; no program-level ROI projections",
         },
       ],
     },
