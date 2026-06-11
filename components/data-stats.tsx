@@ -17,7 +17,7 @@ const stats: Stat[] = [
       "As technology rapidly reshapes the workforce, quality postsecondary education and durable skills have never been more important.",
   },
   {
-    number: "240+",
+    number: "400+",
     label: "flexible, skill-aligned lessons",
     subtext:
       "Willow provides districts with a comprehensive, coherent, AI-native curriculum and high quality instructional materials.",

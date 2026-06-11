@@ -75,7 +75,7 @@ function KPICardsSection() {
     },
     {
       icon: "/willow-compared/scripted-lessons.svg",
-      heading: "150+ scripted lessons",
+      heading: "400+ scripted lessons",
       body: "Low-prep, turnkey curriculum that fits directly into existing advisory blocks. No additional work for overstretched staff.",
     },
     {
@@ -204,7 +204,7 @@ function ComparisonTableSection() {
       values: [
         {
           status: "check",
-          note: "High quality instructional materials >150 lessons in easy-to-use modules",
+          note: "High quality instructional materials >400 lessons in easy-to-use modules",
         },
         { status: "partial", note: "" },
         { status: "partial", note: "" },
