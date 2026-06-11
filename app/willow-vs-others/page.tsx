@@ -127,7 +127,7 @@ function ComparisonTableSection() {
   const features = [
     {
       name: "Mission aligned",
-      subtitle: "Nonprofit or PBC",
+      subtitle: "Nonprofit or PBC?",
       values: [
         { status: "check", note: "Public Benefit Corporation" },
         { status: "x", note: "" },
