@@ -202,6 +202,17 @@ function ComparisonTableSection() {
       ],
     },
     {
+      name: "PathSmith Durable Skills Aligned",
+      subtitle: "",
+      values: [
+        { status: "check", note: "Licensed PathSmith Partner" },
+        { status: "x", note: "" },
+        { status: "x", note: "" },
+        { status: "x", note: "" },
+        { status: "x", note: "" },
+      ],
+    },
+    {
       name: "Comprehensive curriculum",
       subtitle: "",
       values: [
