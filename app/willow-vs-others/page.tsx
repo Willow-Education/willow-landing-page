@@ -131,7 +131,7 @@ function ComparisonTableSection() {
       values: [
         { status: "check", note: "Public Benefit Corporation" },
         { status: "x", note: "" },
-        { status: "x", note: "" },
+        { status: "x", note: "Now owned by Providence Equity Partners (private equity)" },
         { status: "x", note: "" },
         {
           status: "partial",
@@ -156,9 +156,12 @@ function ComparisonTableSection() {
       values: [
         {
           status: "check",
-          note: "220k+ programs, Only platform with both college & professional programs",
+          note: "220k+ vetted programs with personalized, program-level ROI projections — college and professional programs side-by-side",
         },
-        { status: "x", note: "College only" },
+        {
+          status: "partial",
+          note: "College + CTE pathways + work-based learning; alternative pathway tracking built in",
+        },
         { status: "x", note: "College only" },
         {
           status: "partial",
@@ -166,17 +169,17 @@ function ComparisonTableSection() {
         },
         {
           status: "partial",
-          note: "College only, but districts can add industry partners",
+          note: "Multi-pathway (4-yr, 2-yr, trade, apprenticeship, military, direct-to-work) via SkillUp partnership; no program-level ROI projections",
         },
       ],
     },
     {
-      name: "AI-native",
+      name: "Teaches AI fluency",
       subtitle: "",
       values: [
         {
           status: "check",
-          note: "Alma, our friendly and safe AI career coach supports at every step",
+          note: "Dedicated AI fluency lessons woven throughout curriculum — students learn to work with, evaluate, and think critically about AI",
         },
         { status: "x", note: "" },
         { status: "x", note: "" },
@@ -195,7 +198,10 @@ function ComparisonTableSection() {
         },
         { status: "check", note: "Strong career exploration tools" },
         { status: "partial", note: "Some assessments & career resources" },
-        { status: "partial", note: "Basic tools from O-Net" },
+        {
+          status: "partial",
+          note: "Career interest inventory, Big 5 assessment, career cluster framework, campus videos — counselor-management-first, not student-first",
+        },
       ],
     },
     {
