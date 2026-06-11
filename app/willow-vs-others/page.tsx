@@ -223,7 +223,7 @@ function ComparisonTableSection() {
         { status: "partial", note: "" },
         { status: "partial", note: "" },
         { status: "x", note: "" },
-        { status: "x", note: "" },
+        { status: "partial", note: "Optional third-party curriculum available for a higher cost." },
       ],
     },
   ];
