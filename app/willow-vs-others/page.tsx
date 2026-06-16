@@ -201,7 +201,7 @@ function ComparisonTableSection() {
       values: [
         {
           status: "check",
-          note: "High quality instructional materials >400 lessons in easy-to-use modules",
+          note: "High quality instructional materials. >400 lessons in easy-to-use modules embedded. No additional cost.",
         },
         { status: "partial", note: "" },
         { status: "partial", note: "" },
