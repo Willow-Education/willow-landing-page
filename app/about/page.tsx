@@ -72,10 +72,10 @@ export default function AboutPage() {
                   My wife Liz is a pediatrician. Anyone who knows us well knows that I delight in drawing way too many comparisons between the challenges in our healthcare system and our education system.
                 </p>
                 <p>
-                  In primary care medicine, we would never refer a patient to a specialist or next step, and never check back in to see if it was successful. However, we do that every year with students who leave our systems, but we don&apos;t track if they were successful. The painful truth is that the majority of students from low-income households are too often making known low-quality next steps, where they&apos;re more likely to be worse off than better off.
+                  In primary care medicine, we would never refer a patient to a specialist or next step and never check back in to ensure progress and success. However, we do that every year with students who leave our systems, but we don&apos;t track if they were successful. The painful truth is that the majority of students from low-income households are too often making known low-quality next steps, where they&apos;re more likely to be worse off than better off.
                 </p>
                 <p>
-                  Why? One reason is that we (as educators) aren&apos;t being honest with them about which next steps (whether college or career) are high quality, and which aren&apos;t.
+                  Why? One reason is that we (as educators) aren&apos;t being honest with students about which next steps (whether college or career) are high quality, and which aren&apos;t.
                 </p>
                 <p>
                   I spent years leading high-performing schools, and I&apos;ll be the first to admit: I was wrong about a lot of things. I used to think a &ldquo;college-for-all&rdquo; mantra was the only way to ensure rigor and equity. But the data tells a different, more complicated story.
