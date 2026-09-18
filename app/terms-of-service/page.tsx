@@ -29,6 +29,9 @@ export default function TermsOfServicePage() {
               <h2 className="font-heading text-xl font-medium text-heading mb-4">
                 Terms of service agreement
               </h2>
+              <p className="text-base text-secondary leading-relaxed mb-4">
+                Effective September 18, 2026.
+              </p>
               <p className="text-base text-secondary leading-relaxed mb-12">
                 This Terms of Service Agreement (&quot;Agreement&quot;) is made between Willow Education and your school &quot;School&quot; regarding the use of the web application known as Willow Ed (&quot;Application&quot;).
               </p>
@@ -130,8 +133,11 @@ export default function TermsOfServicePage() {
                 <h2 className="font-heading text-xl font-medium text-heading mb-4">
                   9. Termination
                 </h2>
+                <p className="text-secondary leading-relaxed mb-4">
+                  Either party may terminate this Agreement if the other materially breaches it and fails to cure that breach within thirty (30) days of written notice describing the breach. For non-payment, the cure period is ten (10) days. A breach that by its nature cannot be cured, including misuse or unauthorized disclosure of student data, infringement of intellectual property, or breach of confidentiality, permits the non-breaching party to terminate on written notice without a cure period.
+                </p>
                 <p className="text-secondary leading-relaxed">
-                  Either party may terminate this Agreement for breach by providing written notice to the other party with [number] days opportunity to cure such breach. Upon termination, the School will cease all use of the Application and return or destroy any Company materials related to it.
+                  Upon termination, the School will cease all use of the Application and return or destroy any Company materials related to it. Company will return or delete student data as the data protection terms of the parties&apos; services agreement provide, or on the School&apos;s written instruction where no such agreement is in place.
                 </p>
               </div>
 
@@ -141,7 +147,17 @@ export default function TermsOfServicePage() {
                   10. Governing law and jurisdiction
                 </h2>
                 <p className="text-secondary leading-relaxed">
-                  This Agreement will be governed by the laws of the United States. Disputes shall be resolved within the jurisdiction of Vermont.
+                  This Agreement is governed by the laws of the State of Vermont, without regard to its conflict of laws rules. The parties submit to the exclusive jurisdiction of the state and federal courts located in Vermont.
+                </p>
+              </div>
+
+              {/* Section 11 */}
+              <div className="mb-10">
+                <h2 className="font-heading text-xl font-medium text-heading mb-4">
+                  11. Relationship to a services agreement
+                </h2>
+                <p className="text-secondary leading-relaxed">
+                  If the School and Company have entered into a separate written services agreement covering the Application, that agreement governs and controls over these Terms to the extent of any conflict. These Terms apply only where no such agreement is in place, and only to the extent they do not conflict with it.
                 </p>
               </div>
             </div>
