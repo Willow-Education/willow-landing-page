@@ -30,7 +30,7 @@ export default function PrivacyPolicyPage() {
                 Privacy policy for Willow Education
               </h2>
               <p className="text-base text-secondary leading-relaxed mb-4">
-                Last updated: September 13, 2024
+                Last updated: September 18, 2026
               </p>
               <p className="text-base text-secondary leading-relaxed mb-12">
                 Welcome to Willow Education! This Privacy Policy explains how we collect, use, store, and protect the personal information of our users. By accessing or using our web app, you agree to the terms and conditions outlined in this policy. If you have any questions or concerns regarding your data, please contact us at <a href="mailto:privacy@willowed.org" className="text-content-link underline hover:text-[#025f80]">privacy@willowed.org</a>.
@@ -90,11 +90,23 @@ export default function PrivacyPolicyPage() {
                 <p className="text-secondary leading-relaxed mb-4">
                   We use third-party services to improve our platform and enhance your experience:
                 </p>
-                <ul className="list-disc list-inside text-secondary leading-relaxed ml-4">
-                  <li>Segment, Google Analytics, and Amplitude: For collecting usage data to analyze and improve our services.</li>
-                  <li>SendGrid: For tracking email opens and improving communication.</li>
-                  <li>Twilio: For sending text reminders if opted in.</li>
+                <ul className="list-disc list-inside text-secondary leading-relaxed mb-4 ml-4">
+                  <li>Vercel: Web and API hosting.</li>
+                  <li>Vercel Analytics: Website analytics.</li>
+                  <li>Google Cloud Platform and Firebase: Application database, authentication, and hosting.</li>
+                  <li>Supabase: Reference-data store.</li>
+                  <li>Anthropic: AI assistant conversation generation.</li>
+                  <li>OpenAI: Content moderation checks and search matching.</li>
+                  <li>Deepgram: Speech-to-text transcription.</li>
+                  <li>Clever: Rostering and single sign-on.</li>
+                  <li>Postmark: Transactional email.</li>
+                  <li>Twilio: Opt-in text message notifications.</li>
+                  <li>Sentry: Error monitoring, with identifying details removed at collection.</li>
+                  <li>Google Maps Platform: Address autocomplete during account setup.</li>
                 </ul>
+                <p className="text-secondary leading-relaxed">
+                  All subprocessors that handle student data are hosted in the United States. Willow will update this list within thirty (30) days of adding or removing a subprocessor.
+                </p>
               </div>
 
               {/* Data Security */}
