@@ -17,7 +17,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://willoweducation.com"),
+  metadataBase: new URL("https://www.willowed.org"),
   title: "Willow Education | Career Exploration Curriculum Platform",
   icons: {
     icon: "/favicon.svg",
@@ -36,26 +36,17 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://willoweducation.com",
+    url: "https://www.willowed.org",
     title: "Willow Education | Career Exploration Curriculum Platform",
     description:
       "A career exploration curriculum and platform designed to significantly increase economic mobility for students.",
     siteName: "Willow Education",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Willow Education",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Willow Education | Career Exploration Curriculum Platform",
     description:
       "A career exploration curriculum and platform designed to significantly increase economic mobility for students.",
-    images: ["/og-image.png"],
   },
   robots: {
     index: true,

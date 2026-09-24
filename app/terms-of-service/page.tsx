@@ -1,11 +1,13 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Terms of Service | Willow Education",
   description:
     "Willow Ed Terms of Service Agreement for schools using the Willow Ed web application.",
-};
+  path: "/terms-of-service",
+});
 
 export default function TermsOfServicePage() {
   return (

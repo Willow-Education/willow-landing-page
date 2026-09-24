@@ -11,6 +11,7 @@ const navLinks = [
   { name: "Curriculum", href: "/curriculum" },
   { name: "About us", href: "/about" },
   { name: "Willow vs Others", href: "/willow-vs-others" },
+  { name: "Careers", href: "/careers" },
 ];
 
 export function Header() {

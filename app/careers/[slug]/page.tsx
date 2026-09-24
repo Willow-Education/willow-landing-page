@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { pageMetadata } from "@/lib/metadata";
 import { getJob, getJobMeta, getOpenJobs } from "@/lib/data/jobs";
 import { ApplicationForm } from "./ApplicationForm";
 
@@ -23,10 +24,11 @@ export async function generateMetadata({
     return { title: "Careers | Willow Education" };
   }
 
-  return {
+  return pageMetadata({
     title: `${job.title} | Careers at Willow Education`,
     description: job.summary,
-  };
+    path: `/careers/${job.slug}`,
+  });
 }
 
 export default async function JobPage({

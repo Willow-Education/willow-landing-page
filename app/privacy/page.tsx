@@ -1,11 +1,13 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Privacy Policy | Willow Education",
   description:
     "Privacy Policy for Willow Education - How we collect, use, store, and protect your personal information.",
-};
+  path: "/privacy",
+});
 
 const subprocessors: { provider: string; purpose: string }[] = [
   { provider: "Vercel", purpose: "Web and API hosting" },

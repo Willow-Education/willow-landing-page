@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import personalityTypes from "@/lib/data/personality-types.json";
 import PersonalityResults, { type PersonalityType } from "../../PersonalityResults";
 
@@ -30,8 +31,11 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${pt.title} — Willow Personality Results`,
-    description: pt.shortDescription,
+    ...pageMetadata({
+      title: `${pt.title} — Willow Personality Results`,
+      description: pt.shortDescription,
+      path: `/personality-quiz/results/${pt.id}`,
+    }),
     robots,
   };
 }

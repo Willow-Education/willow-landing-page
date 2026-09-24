@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { pageMetadata } from "@/lib/metadata";
 import { CAREERS_EMAIL, getJobMeta, getOpenJobs } from "@/lib/data/jobs";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Careers | Willow Education",
   description:
     "Join Willow Education and help millions of students find their best-fit next step after high school.",
-};
+  path: "/careers",
+});
 
 export default function CareersPage() {
   const jobs = getOpenJobs();
