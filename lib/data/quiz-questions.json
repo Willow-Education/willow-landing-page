@@ -512,7 +512,7 @@
         {
           "optionId": "B5_bin8_emotionalstability",
           "optionText": "Taking quiet time alone to reset",
-          "optionAlignment": "Emotional-Stability"
+          "optionAlignment": "Introversion, low Extraversion"
         },
         {
           "optionId": "B5_bin8_extraversion",
