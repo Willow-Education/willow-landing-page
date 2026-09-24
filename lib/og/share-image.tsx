@@ -3,26 +3,27 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 // Social share images (Open Graph / Twitter) shown when a page link is posted
-// to LinkedIn, Slack, iMessage, etc. Each route renders one from an
-// opengraph-image.tsx file.
+// to LinkedIn, Slack, iMessage, etc.
+//
+// Slack and others often show only a small square thumbnail cropped from the
+// center of the image, so everything important sits in the center 630×630.
 
 export const OG_IMAGE_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
 
+const MINT = "#ACF7B2";
+const DARK_GREEN = "#062F29";
+
 const ASSETS_DIR = join(process.cwd(), "lib/og");
 
 async function loadAssets() {
-  const [logo, poppinsMedium, poppinsRegular] = await Promise.all([
-    readFile(join(ASSETS_DIR, "willow-logo.svg"), "utf8"),
+  const [mark, poppinsMedium] = await Promise.all([
+    readFile(join(ASSETS_DIR, "willow-mark.svg"), "utf8"),
     readFile(join(ASSETS_DIR, "Poppins-Medium.ttf")),
-    readFile(join(ASSETS_DIR, "Poppins-Regular.ttf")),
   ]);
   return {
-    logoSrc: `data:image/svg+xml;base64,${Buffer.from(logo).toString("base64")}`,
-    fonts: [
-      { name: "Poppins", data: poppinsMedium, weight: 500 as const, style: "normal" as const },
-      { name: "Poppins", data: poppinsRegular, weight: 400 as const, style: "normal" as const },
-    ],
+    markSrc: `data:image/svg+xml;base64,${Buffer.from(mark).toString("base64")}`,
+    fonts: [{ name: "Poppins", data: poppinsMedium, weight: 500 as const, style: "normal" as const }],
   };
 }
 
@@ -32,31 +33,10 @@ export async function loadPublicJpeg(publicPath: string): Promise<string> {
   return `data:image/jpeg;base64,${data.toString("base64")}`;
 }
 
-export async function renderShareImage({
-  eyebrow,
-  title,
-  subtitle,
-  cta,
-  url,
-  image,
-}: {
-  eyebrow: string;
-  title: string;
-  subtitle: string;
-  cta: string;
-  // Shown bottom-left, without the protocol, e.g. "willowed.org/careers".
-  url: string;
-  // Optional square picture shown on the right (data URI).
-  image?: string;
-}) {
-  const { logoSrc, fonts } = await loadAssets();
-  const titleSize = image
-    ? 60
-    : title.length <= 18
-      ? 84
-      : title.length <= 30
-        ? 68
-        : 58;
+// The Willow logo centered on brand mint. With `image`, that picture is
+// centered instead, with a small logo beneath it.
+export async function renderShareImage({ image }: { image?: string } = {}) {
+  const { markSrc, fonts } = await loadAssets();
 
   return new ImageResponse(
     (
@@ -66,114 +46,40 @@ export async function renderShareImage({
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "72px 80px",
-          backgroundColor: "#F8FAFC",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: MINT,
           fontFamily: "Poppins",
-          position: "relative",
+          color: DARK_GREEN,
         }}
       >
-        {/* Brand accent bar */}
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: 16,
-            backgroundColor: "#ACF7B2",
-          }}
-        />
-
-        {image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={image}
-            width={380}
-            height={380}
-            alt=""
-            style={{
-              position: "absolute",
-              right: 80,
-              top: 72,
-              borderRadius: 24,
-              objectFit: "cover",
-            }}
-          />
+        {image ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={image}
+              width={440}
+              height={440}
+              alt=""
+              style={{ borderRadius: 32, objectFit: "cover" }}
+            />
+            <div style={{ display: "flex", alignItems: "center", marginTop: 28 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={markSrc} width={64} height={64} alt="" />
+              <div style={{ display: "flex", fontSize: 36, fontWeight: 500, marginLeft: 8 }}>
+                Willow Education
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={markSrc} width={300} height={300} alt="" />
+            <div style={{ display: "flex", fontSize: 60, fontWeight: 500, marginTop: 8 }}>
+              Willow Education
+            </div>
+          </div>
         )}
-
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logoSrc} width={232} height={64} alt="" />
-
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            maxWidth: image ? 600 : 1040,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              fontSize: 26,
-              fontWeight: 500,
-              color: "#0278A2",
-              letterSpacing: 2,
-              textTransform: "uppercase",
-              marginBottom: 20,
-            }}
-          >
-            {eyebrow}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              fontSize: titleSize,
-              fontWeight: 500,
-              color: "#041D1A",
-              lineHeight: 1.1,
-              letterSpacing: -1,
-            }}
-          >
-            {title}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              fontSize: 30,
-              fontWeight: 400,
-              color: "#535862",
-              marginTop: 24,
-              lineHeight: 1.4,
-            }}
-          >
-            {subtitle}
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            fontSize: 24,
-            color: "#535862",
-          }}
-        >
-          <div style={{ display: "flex" }}>{url}</div>
-          <div
-            style={{
-              display: "flex",
-              backgroundColor: "#062F29",
-              color: "#FFFFFF",
-              fontWeight: 500,
-              padding: "14px 28px",
-              borderRadius: 10,
-            }}
-          >
-            {`${cta} →`}
-          </div>
-        </div>
       </div>
     ),
     { ...OG_IMAGE_SIZE, fonts }

@@ -35,6 +35,7 @@ export async function generateMetadata({
       title: `${pt.title} — Willow Personality Results`,
       description: pt.shortDescription,
       path: `/personality-quiz/results/${pt.id}`,
+      image: `/personality-quiz/results/${pt.id}/opengraph-image`,
     }),
     robots,
   };
