@@ -10,6 +10,15 @@ function getResendClient() {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function sendFormNotification({
   formName,
   data,
@@ -26,7 +35,7 @@ export async function sendFormNotification({
 
   const dataRows = Object.entries(data)
     .filter(([, value]) => value != null)
-    .map(([key, value]) => `<tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${key}</td><td style="padding: 8px; border: 1px solid #ddd;">${value}</td></tr>`)
+    .map(([key, value]) => `<tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${escapeHtml(key)}</td><td style="padding: 8px; border: 1px solid #ddd; white-space: pre-wrap;">${escapeHtml(value as string)}</td></tr>`)
     .join("");
 
   try {
