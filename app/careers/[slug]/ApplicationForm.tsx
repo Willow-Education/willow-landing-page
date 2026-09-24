@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { CheckCircle } from "phosphor-react";
+import { CheckCircle, FileText, UploadSimple } from "phosphor-react";
 import { jobApplicationSchema, validateResumeFile } from "@/lib/validations";
 import { cn } from "@/lib/utils";
 import type { JobApplication } from "@/lib/data/jobs";
@@ -30,6 +30,29 @@ function FieldError({ message }: { message?: string }) {
   return <p className="mt-1.5 text-sm text-red-600">{message}</p>;
 }
 
+function Step({
+  number,
+  title,
+  children,
+}: {
+  number: number;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <fieldset className="border-t border-gray-200 pt-8 first:border-t-0 first:pt-0">
+      <legend className="sr-only">{title}</legend>
+      <div className="flex items-center gap-3 mb-6" aria-hidden="true">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#ACF7B2] text-sm font-semibold text-[#062F29]">
+          {number}
+        </span>
+        <span className="font-heading text-lg md:text-xl font-medium text-heading">{title}</span>
+      </div>
+      <div className="space-y-6">{children}</div>
+    </fieldset>
+  );
+}
+
 export function ApplicationForm({
   jobSlug,
   jobTitle,
@@ -46,10 +69,13 @@ export function ApplicationForm({
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
   });
+
+  const resumeName = watch("resume")?.[0]?.name;
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
@@ -93,131 +119,165 @@ export function ApplicationForm({
           Thanks for applying!
         </h3>
         <p className="text-secondary text-base leading-relaxed">
-          We&apos;ve received your application for the {jobTitle} role. We review every
-          application and will be in touch.
+          We&apos;ve received your application for the {jobTitle} role. We review every application
+          and will be in touch.
         </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8" noValidate>
-      <div className="grid sm:grid-cols-2 gap-5">
-        <div>
-          <label htmlFor="firstName" className={labelClass}>
-            First name *
-          </label>
-          <input
-            {...register("firstName")}
-            type="text"
-            id="firstName"
-            autoComplete="given-name"
-            className={cn(inputClass, errors.firstName ? "border-red-400" : "border-gray-300")}
-          />
-          <FieldError message={errors.firstName?.message} />
-        </div>
-        <div>
-          <label htmlFor="lastName" className={labelClass}>
-            Last name *
-          </label>
-          <input
-            {...register("lastName")}
-            type="text"
-            id="lastName"
-            autoComplete="family-name"
-            className={cn(inputClass, errors.lastName ? "border-red-400" : "border-gray-300")}
-          />
-          <FieldError message={errors.lastName?.message} />
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor="email" className={labelClass}>
-          Email address *
-        </label>
-        <input
-          {...register("email")}
-          type="email"
-          id="email"
-          autoComplete="email"
-          className={cn(inputClass, errors.email ? "border-red-400" : "border-gray-300")}
-        />
-        <FieldError message={errors.email?.message} />
-      </div>
-
-      <div>
-        <label htmlFor="portfolioUrl" className={labelClass}>
-          Portfolio or prototype link *
-        </label>
-        <p className={hintClass}>
-          A link to your portfolio or to something you&apos;ve designed or built.
-        </p>
-        <input
-          {...register("portfolioUrl")}
-          type="url"
-          id="portfolioUrl"
-          placeholder="https://"
-          className={cn(inputClass, errors.portfolioUrl ? "border-red-400" : "border-gray-300")}
-        />
-        <FieldError message={errors.portfolioUrl?.message} />
-      </div>
-
-      <div>
-        <label htmlFor="resume" className={labelClass}>
-          Resume *
-        </label>
-        <p className={hintClass}>PDF or Word document, up to 4MB.</p>
-        <input
-          {...register("resume")}
-          type="file"
-          id="resume"
-          accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          className="block w-full text-sm text-secondary file:mr-4 file:h-10 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-sm file:font-semibold file:text-heading hover:file:bg-gray-200 file:cursor-pointer"
-        />
-        <FieldError message={errors.resume?.message as string | undefined} />
-      </div>
-
-      {application.questions.map((question) => {
-        const id = `answers-${question.id}`;
-        return (
-          <div key={question.id}>
-            <label htmlFor={id} className={labelClass}>
-              {question.label} *
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-10" noValidate>
+      <Step number={1} title="About you">
+        <div className="grid sm:grid-cols-2 gap-5">
+          <div>
+            <label htmlFor="firstName" className={labelClass}>
+              First name *
             </label>
-            <textarea
-              {...register(`answers.${question.id}`)}
-              id={id}
-              rows={6}
-              className={cn(
-                textareaClass,
-                errors.answers?.[question.id] ? "border-red-400" : "border-gray-300"
-              )}
+            <input
+              {...register("firstName")}
+              type="text"
+              id="firstName"
+              autoComplete="given-name"
+              className={cn(inputClass, errors.firstName ? "border-red-400" : "border-gray-300")}
             />
-            <FieldError message={errors.answers?.[question.id]?.message} />
+            <FieldError message={errors.firstName?.message} />
           </div>
-        );
-      })}
+          <div>
+            <label htmlFor="lastName" className={labelClass}>
+              Last name *
+            </label>
+            <input
+              {...register("lastName")}
+              type="text"
+              id="lastName"
+              autoComplete="family-name"
+              className={cn(inputClass, errors.lastName ? "border-red-400" : "border-gray-300")}
+            />
+            <FieldError message={errors.lastName?.message} />
+          </div>
+        </div>
 
-      <div>
-        <label htmlFor="videoUrl" className={labelClass}>
-          Video link *
-        </label>
-        <p className={hintClass}>{application.videoPrompt}</p>
-        <p className={hintClass}>
-          Share a link from Loom, Komodo, YouTube, or anywhere else we can watch it.{" "}
-          <strong className="font-semibold text-primary">
-            Please check your sharing settings so anyone with the link can view it.
-          </strong>
-        </p>
-        <input
-          {...register("videoUrl")}
-          type="url"
-          id="videoUrl"
-          placeholder="https://"
-          className={cn(inputClass, errors.videoUrl ? "border-red-400" : "border-gray-300")}
-        />
-        <FieldError message={errors.videoUrl?.message} />
-      </div>
+        <div>
+          <label htmlFor="email" className={labelClass}>
+            Email address *
+          </label>
+          <input
+            {...register("email")}
+            type="email"
+            id="email"
+            autoComplete="email"
+            className={cn(inputClass, errors.email ? "border-red-400" : "border-gray-300")}
+          />
+          <FieldError message={errors.email?.message} />
+        </div>
+      </Step>
+
+      <Step number={2} title="Your work">
+        <div>
+          <label htmlFor="portfolioUrl" className={labelClass}>
+            Portfolio or prototype link *
+          </label>
+          <p className={hintClass}>
+            A link to your portfolio or to something you&apos;ve designed or built.
+          </p>
+          <input
+            {...register("portfolioUrl")}
+            type="url"
+            id="portfolioUrl"
+            placeholder="https://"
+            className={cn(inputClass, errors.portfolioUrl ? "border-red-400" : "border-gray-300")}
+          />
+          <FieldError message={errors.portfolioUrl?.message} />
+        </div>
+
+        <div>
+          <p className={labelClass}>Resume *</p>
+          <input
+            {...register("resume")}
+            type="file"
+            id="resume"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            className="peer sr-only"
+          />
+          <label
+            htmlFor="resume"
+            className={cn(
+              "flex items-center gap-4 rounded-xl border-2 border-dashed p-5 cursor-pointer transition-colors hover:bg-gray-50 peer-focus-visible:ring-2 peer-focus-visible:ring-[#062F29]",
+              errors.resume
+                ? "border-red-400"
+                : resumeName
+                  ? "border-[#062F29]/40"
+                  : "border-gray-300",
+            )}
+          >
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#ACF7B2]">
+              {resumeName ? (
+                <FileText size={22} className="text-[#062F29]" />
+              ) : (
+                <UploadSimple size={22} className="text-[#062F29]" />
+              )}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-heading truncate">
+                {resumeName ?? "Upload your resume"}
+              </span>
+              <span className="block text-sm text-secondary">
+                {resumeName
+                  ? "Click to choose a different file"
+                  : "PDF or Word document, up to 4MB"}
+              </span>
+            </span>
+          </label>
+          <FieldError message={errors.resume?.message as string | undefined} />
+        </div>
+      </Step>
+
+      <Step number={3} title="A few questions">
+        {application.questions.map((question) => {
+          const id = `answers-${question.id}`;
+          return (
+            <div key={question.id}>
+              <label htmlFor={id} className={labelClass}>
+                {question.label} *
+              </label>
+              <textarea
+                {...register(`answers.${question.id}`)}
+                id={id}
+                rows={6}
+                className={cn(
+                  textareaClass,
+                  errors.answers?.[question.id] ? "border-red-400" : "border-gray-300",
+                )}
+              />
+              <FieldError message={errors.answers?.[question.id]?.message} />
+            </div>
+          );
+        })}
+      </Step>
+
+      <Step number={4} title="A short video">
+        <div>
+          <label htmlFor="videoUrl" className={labelClass}>
+            Video link *
+          </label>
+          <p className={hintClass}>{application.videoPrompt}</p>
+          <p className={hintClass}>
+            Share a link from Loom, Komodo, YouTube, or anywhere else we can watch it.{" "}
+            <strong className="font-semibold text-primary">
+              Please check your sharing settings so anyone with the link can view it.
+            </strong>
+          </p>
+          <input
+            {...register("videoUrl")}
+            type="url"
+            id="videoUrl"
+            placeholder="https://"
+            className={cn(inputClass, errors.videoUrl ? "border-red-400" : "border-gray-300")}
+          />
+          <FieldError message={errors.videoUrl?.message} />
+        </div>
+      </Step>
 
       {error && (
         <p className="text-sm text-red-600" role="alert">
@@ -228,7 +288,7 @@ export function ApplicationForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full sm:w-auto h-12 px-8 bg-[#062F29] text-white rounded-lg text-sm font-semibold transition-all duration-300 hover:rounded-[14px] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full sm:w-auto h-12 px-8 bg-[#062F29] text-white rounded-lg text-base font-semibold transition-all duration-300 hover:rounded-[14px] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? "Submitting..." : "Submit application"}
       </button>

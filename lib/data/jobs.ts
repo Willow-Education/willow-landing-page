@@ -47,6 +47,8 @@ export interface Job {
   team: string;
   location?: string;
   type: string;
+  // Short salary range shown in the job page's summary, e.g. "$80K – $130K".
+  salary?: string;
   open: boolean;
   // Used for the page's search/share description.
   summary: string;
@@ -63,6 +65,7 @@ export const JOBS: Job[] = [
     title: "Product Manager",
     team: "Product",
     type: "Full-time",
+    salary: "$80K – $130K",
     open: true,
     summary:
       "We're looking for a Product Manager with a design background who can own a problem from the first conversation with a user through a finished product experience.",
@@ -216,5 +219,9 @@ export function getJob(slug: string): Job | undefined {
 }
 
 export function getJobMeta(job: Job): string {
-  return [job.team, job.location, job.type].filter(Boolean).join(" · ");
+  return getJobTags(job).join(" · ");
+}
+
+export function getJobTags(job: Job): string[] {
+  return [job.team, job.location, job.type].filter((tag): tag is string => Boolean(tag));
 }
