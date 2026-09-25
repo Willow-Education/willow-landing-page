@@ -113,8 +113,9 @@ export function StaffGate({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <header className="border-b border-gray-200">
+    // Fixed to the viewport so pages below the header can manage their own scrolling.
+    <div className="h-dvh bg-white flex flex-col">
+      <header className="shrink-0 border-b border-gray-200">
         <div className="px-5 md:px-8 h-14 flex items-center justify-between gap-4">
           <Link href="/careers-management" className="font-heading text-base font-medium text-heading">
             Careers management
@@ -127,7 +128,7 @@ export function StaffGate({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      {children}
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col">{children}</div>
     </div>
   );
 }

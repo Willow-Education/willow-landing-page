@@ -381,7 +381,7 @@ export default function JobCandidatesPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col md:h-[calc(100vh-3.5rem)] md:min-h-0">
+    <div className="flex-1 flex flex-col md:min-h-0">
       {/* Job header and stage tabs */}
       <div className="shrink-0 border-b border-gray-200">
         <div className="px-5 md:px-8 pt-6">
