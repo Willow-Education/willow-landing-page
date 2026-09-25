@@ -73,8 +73,8 @@ export const JOBS: Job[] = [
       {
         heading: "About Willow",
         blocks: [
-          "Willow Education is building the career and postsecondary readiness platform that helps schools and CBOs drive economic mobility. We combine quality coherent curriculum, AI-powered guidance, career exploration, labor market data, and data on hundreds of thousands of college and professional programs to help students understand who they are, discover what is possible, and make better decisions about what comes after high school.",
-          "Willow currently has four full-time team members: our CEO, Chief Product and Technology Officer, Chief Academic Officer, and this role, alongside a small number of part-time and contract contributors. You will make up the product team alongside our CPTO and work closely with our CAO, who leads curriculum and customer success. There are very few layers between understanding a problem, making a decision, and building something better.",
+          "Willow Education is building the career and postsecondary readiness platform that helps schools and CBOs drive economic mobility. We combine a coherent high quality curriculum, AI-powered guidance, career exploration, labor market data, and data on hundreds of thousands of college and professional programs to help students understand who they are, discover what is possible, and make better decisions about what comes after high school.",
+          "Willow currently has five full-time team members: our CEO, Chief Product and Technology Officer, Chief Academic Officer, Partnerships Manager, and this role, alongside a small number of part-time and contract contributors. You will make up the product team alongside our CPTO and work closely with our CAO, who leads curriculum and customer success. There are very few layers between understanding a problem, making a decision, and building something better.",
         ],
       },
       {
@@ -107,7 +107,7 @@ export const JOBS: Job[] = [
           "AI is core to how we work at Willow.",
           "You will be expected to use AI every day to research problems, explore ideas, analyze feedback, design solutions, and build coded prototypes.",
           "We believe product ideas should be experienced, not just described in documents or static mockups. You should be comfortable using modern AI development tools to turn ideas into working prototypes that users and teammates can interact with.",
-          "You do not need to be a software engineer, but working and coding with AI is a requirement for this role.",
+          "You do not need to be a software engineer, but you must be able to work and code with AI for this role.",
         ],
       },
       {
@@ -134,14 +134,14 @@ export const JOBS: Job[] = [
             "Working directly with engineers",
             "Taking a product from an ambiguous problem through a shipped solution",
           ],
-          "We are not looking for a PM who creates rough concepts and expects a designer to take over. You should have a strong design eye and be comfortable owning the quality of the experience yourself.",
+          "We are not looking for a PM who creates rough concepts and expects a designer to take over. You should have a strong design eye, expertise with driving design decisions, tools, and workflows, and be comfortable owning the quality of the experience yourself.",
           "You should also be comfortable setting your own direction, making big decisions without waiting for permission, and operating in an environment where priorities and plans will change. If you need highly predictable work, tightly defined responsibilities, or daily direction from a manager, this is probably not the right role.",
         ],
       },
       {
-        heading: "Experience with schools is a major plus",
+        heading: "Experience with public schools is a major plus",
         blocks: [
-          "Experience working in or closely with schools is a significant advantage.",
+          "Experience working in or closely with American public schools is a significant advantage.",
           "Students, educators, counselors, administrators, districts, and families all operate under different constraints, and many of those constraints are difficult to understand from the outside.",
           "We are especially interested in candidates who have worked as educators, counselors, school leaders, education researchers, edtech product builders, or in other roles that involved meaningful time inside schools.",
         ],
@@ -163,7 +163,13 @@ export const JOBS: Job[] = [
       {
         heading: "Compensation",
         blocks: [
-          "Salary range: $80,000 - $130,000, depending on experience and fit. Meaningful equity and benefits in a fast-growing mission-driven public benefit corporation.",
+          "Salary range: $80,000 - $130,000, depending on experience and fit. Meaningful benefits and equity in a fast-growing mission-driven public benefit corporation.",
+        ],
+      },
+      {
+        heading: "How to apply",
+        blocks: [
+          "Please apply using the form on this page. We do not accept applications through LinkedIn. Applications close Sunday, October 11, 2026 at 11:59pm ET.",
         ],
       },
     ],
