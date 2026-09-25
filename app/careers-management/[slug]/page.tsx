@@ -225,7 +225,7 @@ function ApplicationDetail({
         ))}
       </div>
 
-      <div className="max-w-3xl px-5 md:px-10 py-8 md:py-10">
+      <div className={cn("px-5 md:px-10 py-8 md:py-10", activeTab !== "resume" && "max-w-3xl")}>
         {activeTab === "application" && (
           <div className="space-y-8">
             <LinkRow label="Portfolio or prototype" href={application.portfolio_url} />
@@ -257,7 +257,7 @@ function ApplicationDetail({
               <iframe
                 src={resumeUrl}
                 title={`${application.first_name} ${application.last_name} resume`}
-                className="w-full h-[80vh] border border-gray-200 rounded-lg"
+                className="w-full h-[calc(100dvh-6rem)] min-h-[600px] border border-gray-200 rounded-lg"
               />
             </div>
           ) : (
