@@ -52,6 +52,16 @@ function formatDate(value: string) {
   });
 }
 
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 function daysInStage(application: Application) {
   return Math.max(0, Math.floor((Date.now() - new Date(application.stage_changed_at).getTime()) / DAY_MS));
 }
@@ -319,7 +329,11 @@ export default function JobCandidatesPage() {
       });
   }, [job]);
 
-  const stageApplications = applications?.filter((a) => a.stage === activeStage) ?? [];
+  // Most recent applicants first.
+  const stageApplications =
+    applications
+      ?.filter((a) => a.stage === activeStage)
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) ?? [];
   const selected =
     stageApplications.find((a) => a.id === selectedId) ?? stageApplications[0] ?? null;
 
@@ -449,7 +463,7 @@ export default function JobCandidatesPage() {
                       {application.first_name} {application.last_name}
                     </span>
                     <span className="block text-xs text-secondary mt-0.5">
-                      Applied {formatDate(application.created_at)}
+                      Applied {formatDateTime(application.created_at)}
                       {" · "}
                       <span className="text-amber-700">{daysInStage(application)}d in stage</span>
                     </span>
