@@ -551,7 +551,7 @@ export default function JobCandidatesPage() {
           </main>
 
           {selected && (
-            <aside className="xl:w-96 shrink-0 border-t xl:border-t-0 xl:border-l border-gray-200 bg-gray-50 xl:overflow-y-auto">
+            <aside className="xl:w-96 shrink-0 border-t xl:border-t-0 xl:border-l border-gray-200 bg-[#F8F6F3] xl:overflow-y-auto">
               <OverallNotes key={selected.id} applicationId={selected.id} />
             </aside>
           )}
