@@ -292,6 +292,7 @@ function ApplicationDetail({
             section={activeTab}
             questions={job.interviews[activeTab]}
             rubric={activeTab === "phone" ? job.interviews.phoneRubric : undefined}
+            schedulable={activeTab === "phone"}
           />
         )}
 

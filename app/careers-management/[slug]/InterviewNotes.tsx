@@ -11,15 +11,24 @@ interface Notes {
   general: string;
   questions: Record<string, string>;
   ratings: Record<string, number>;
+  // ISO timestamp of the scheduled interview, or null when none is booked.
+  scheduledAt: string | null;
 }
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 const SAVE_DELAY_MS = 800;
-const EMPTY_NOTES: Notes = { general: "", questions: {}, ratings: {} };
+const EMPTY_NOTES: Notes = { general: "", questions: {}, ratings: {}, scheduledAt: null };
 
 // -5 to 5 with no neutral option, so every score leans one way.
 const SCALE = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5];
+
+const primaryButtonClass =
+  "h-10 px-4 bg-[#062F29] text-white rounded-lg text-sm font-semibold transition-all duration-300 hover:rounded-[14px] disabled:opacity-50";
+const secondaryButtonClass =
+  "h-10 px-4 border border-gray-300 text-heading rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50";
+const inputClass =
+  "h-10 px-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#062F29] focus:border-transparent";
 
 const textareaClass =
   "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#062F29] focus:border-transparent transition-colors text-sm leading-relaxed";
@@ -33,16 +42,143 @@ function formatSavedAt(value: string) {
   });
 }
 
+function formatScheduledAt(value: string) {
+  return new Date(value).toLocaleString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+const pad = (n: number) => String(n).padStart(2, "0");
+
+// Splits an ISO timestamp into the local date and time strings the inputs expect.
+function toLocalInputs(value: string) {
+  const d = new Date(value);
+  return {
+    date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+  };
+}
+
+function ScheduleInterview({
+  section,
+  scheduledAt,
+  onChange,
+}: {
+  section: NotesSection;
+  scheduledAt: string | null;
+  onChange: (scheduledAt: string | null) => Promise<boolean>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const startEditing = () => {
+    const initial = scheduledAt ? toLocalInputs(scheduledAt) : { date: "", time: "" };
+    setDate(initial.date);
+    setTime(initial.time);
+    setEditing(true);
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!date || !time) return;
+    setBusy(true);
+    const ok = await onChange(new Date(`${date}T${time}`).toISOString());
+    setBusy(false);
+    if (ok) setEditing(false);
+  };
+
+  const cancelInterview = async () => {
+    setBusy(true);
+    await onChange(null);
+    setBusy(false);
+  };
+
+  if (editing) {
+    return (
+      <form onSubmit={submit} className="flex flex-wrap items-end gap-3">
+        <div>
+          <label htmlFor={`${section}-date`} className="block text-xs font-semibold text-primary mb-1">
+            Day
+          </label>
+          <input
+            id={`${section}-date`}
+            type="date"
+            required
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label htmlFor={`${section}-time`} className="block text-xs font-semibold text-primary mb-1">
+            Time
+          </label>
+          <input
+            id={`${section}-time`}
+            type="time"
+            required
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className={inputClass}
+          />
+        </div>
+        <button type="submit" disabled={busy || !date || !time} className={primaryButtonClass}>
+          Save
+        </button>
+        <button type="button" disabled={busy} onClick={() => setEditing(false)} className={secondaryButtonClass}>
+          Cancel
+        </button>
+      </form>
+    );
+  }
+
+  if (!scheduledAt) {
+    return (
+      <button type="button" onClick={startEditing} className={primaryButtonClass}>
+        Schedule interview
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <p className="text-sm text-heading mr-2">
+        <span className="font-semibold">Scheduled:</span> {formatScheduledAt(scheduledAt)}
+      </p>
+      <button type="button" disabled={busy} onClick={startEditing} className={secondaryButtonClass}>
+        Edit
+      </button>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={cancelInterview}
+        className="h-10 px-4 border border-red-200 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors disabled:opacity-50"
+      >
+        Cancel interview
+      </button>
+    </div>
+  );
+}
+
 export function InterviewNotes({
   applicationId,
   section,
   questions,
   rubric = [],
+  schedulable = false,
 }: {
   applicationId: string;
   section: NotesSection;
   questions: InterviewQuestion[];
   rubric?: RubricCriterion[];
+  schedulable?: boolean;
 }) {
   const [notes, setNotes] = useState<Notes | null>(null);
   const [loadError, setLoadError] = useState(false);
@@ -75,7 +211,7 @@ export function InterviewNotes({
   }, [applicationId, section]);
 
   const save = async (next: Notes) => {
-    if (!supabase) return;
+    if (!supabase) return false;
     pendingRef.current = null;
     setStatus("saving");
 
@@ -88,10 +224,11 @@ export function InterviewNotes({
     if (error) {
       console.error("Supabase error:", error);
       setStatus("error");
-      return;
+      return false;
     }
     setStatus("saved");
     setLastSaved({ at: data.updated_at, by: data.updated_by });
+    return true;
   };
 
   useEffect(() => {
@@ -109,6 +246,15 @@ export function InterviewNotes({
     setStatus("idle");
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => save(next), SAVE_DELAY_MS);
+  };
+
+  // Scheduling is a discrete action, so it saves right away along with any
+  // pending text edits instead of waiting on the debounce.
+  const schedule = (scheduledAt: string | null) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    const next = { ...notes!, scheduledAt };
+    setNotes(next);
+    return save(next);
   };
 
   const rate = (criterionId: string, score: number) => {
@@ -166,9 +312,14 @@ export function InterviewNotes({
     </div>
   );
 
+  const scheduler = schedulable && (
+    <ScheduleInterview section={section} scheduledAt={notes.scheduledAt} onChange={schedule} />
+  );
+
   if (rubric.length === 0) {
     return (
       <div className="space-y-8">
+        {scheduler}
         {statusLine}
         {questionFields}
       </div>
@@ -177,6 +328,7 @@ export function InterviewNotes({
 
   return (
     <div className="space-y-8">
+      {scheduler}
       {statusLine}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 items-start">
         {questionFields}
