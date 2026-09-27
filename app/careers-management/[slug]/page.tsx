@@ -14,6 +14,7 @@ import {
 } from "@/lib/data/hiring-stages";
 import { cn } from "@/lib/utils";
 import { InterviewNotes } from "./InterviewNotes";
+import { OverallNotes } from "./OverallNotes";
 
 const RESUME_BUCKET = "resumes";
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -529,24 +530,32 @@ export default function JobCandidatesPage() {
           </ul>
         </aside>
 
-        {/* Selected application */}
-        <main className="flex-1 min-w-0 overflow-y-auto">
+        {/* Selected application, with its overall notes beside it (below it on narrower screens) */}
+        <div className="flex-1 min-w-0 md:overflow-y-auto xl:overflow-hidden flex flex-col xl:flex-row">
+          <main className="flex-1 min-w-0 xl:overflow-y-auto">
+            {selected && (
+              <ApplicationDetail
+                key={selected.id}
+                job={job}
+                application={selected}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                isSaving={isSaving}
+                moveError={moveError}
+                onMove={(stage) => moveCandidate(selected, stage)}
+                onPhoneScheduledAtChange={(scheduledAt) =>
+                  setPhoneSchedules((prev) => ({ ...prev, [selected.id]: scheduledAt }))
+                }
+              />
+            )}
+          </main>
+
           {selected && (
-            <ApplicationDetail
-              key={selected.id}
-              job={job}
-              application={selected}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              isSaving={isSaving}
-              moveError={moveError}
-              onMove={(stage) => moveCandidate(selected, stage)}
-              onPhoneScheduledAtChange={(scheduledAt) =>
-                setPhoneSchedules((prev) => ({ ...prev, [selected.id]: scheduledAt }))
-              }
-            />
+            <aside className="xl:w-96 shrink-0 border-t xl:border-t-0 xl:border-l border-gray-200 bg-gray-50 xl:overflow-y-auto">
+              <OverallNotes key={selected.id} applicationId={selected.id} />
+            </aside>
           )}
-        </main>
+        </div>
       </div>
     </div>
   );

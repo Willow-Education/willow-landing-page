@@ -334,10 +334,10 @@ export function InterviewNotes({
     <div className="space-y-8">
       {scheduler}
       {statusLine}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 items-start">
+      <div className="grid grid-cols-1 2xl:grid-cols-2 gap-10 items-start">
         {questionFields}
 
-        <section className="xl:sticky xl:top-0 space-y-8 rounded-lg border border-gray-200 p-5 md:p-6">
+        <section className="2xl:sticky 2xl:top-0 space-y-8 rounded-lg border border-gray-200 p-5 md:p-6">
           <h3 className="text-sm font-semibold text-heading uppercase tracking-wide">Rubric</h3>
           {rubric.map((criterion) => {
             const labelId = `${section}-rubric-${criterion.id}`;
