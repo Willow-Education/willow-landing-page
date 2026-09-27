@@ -62,6 +62,10 @@ function formatDateTime(value: string) {
   });
 }
 
+function formatShortDate(value: string) {
+  return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 function daysInStage(application: Application) {
   return Math.max(0, Math.floor((Date.now() - new Date(application.stage_changed_at).getTime()) / DAY_MS));
 }
@@ -95,6 +99,14 @@ function LinkRow({ label, href }: { label: string; href: string }) {
         {href}
       </a>
     </div>
+  );
+}
+
+function PhoneScheduleBadge({ scheduledAt }: { scheduledAt: string | null }) {
+  return scheduledAt ? (
+    <span className="shrink-0 text-xs font-semibold text-[#062F29]">{formatShortDate(scheduledAt)}</span>
+  ) : (
+    <span className="shrink-0 text-xs font-semibold text-red-600">Not Scheduled</span>
   );
 }
 
@@ -155,6 +167,7 @@ function ApplicationDetail({
   isSaving,
   moveError,
   onMove,
+  onPhoneScheduledAtChange,
 }: {
   job: Job;
   application: Application;
@@ -163,6 +176,7 @@ function ApplicationDetail({
   isSaving: boolean;
   moveError: string | null;
   onMove: (stage: StageId) => void;
+  onPhoneScheduledAtChange: (scheduledAt: string | null) => void;
 }) {
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const [resumeError, setResumeError] = useState(false);
@@ -293,6 +307,7 @@ function ApplicationDetail({
             questions={job.interviews[activeTab]}
             rubric={activeTab === "phone" ? job.interviews.phoneRubric : undefined}
             schedulable={activeTab === "phone"}
+            onScheduledAtChange={activeTab === "phone" ? onPhoneScheduledAtChange : undefined}
           />
         )}
 
@@ -315,6 +330,8 @@ export default function JobCandidatesPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [moveError, setMoveError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<DetailTab>("application");
+  // Phone interview time per application id; null until loaded.
+  const [phoneSchedules, setPhoneSchedules] = useState<Record<string, string | null> | null>(null);
 
   useEffect(() => {
     if (!supabase || !job) return;
@@ -335,6 +352,32 @@ export default function JobCandidatesPage() {
         setApplications(data as Application[]);
       });
   }, [job]);
+
+  const applicationIds = applications?.map((a) => a.id).join(",");
+
+  useEffect(() => {
+    if (!supabase || !applicationIds) return;
+
+    supabase
+      .from("interview_notes")
+      .select("application_id, scheduled_at:notes->>scheduledAt")
+      .eq("section", "phone")
+      .in("application_id", applicationIds.split(","))
+      .then(({ data, error }) => {
+        if (error) {
+          console.error("Supabase error:", error);
+          return;
+        }
+        setPhoneSchedules(
+          Object.fromEntries(
+            (data as { application_id: string; scheduled_at: string | null }[]).map((row) => [
+              row.application_id,
+              row.scheduled_at,
+            ])
+          )
+        );
+      });
+  }, [applicationIds]);
 
   // Most recent applicants first.
   const stageApplications =
@@ -465,9 +508,14 @@ export default function JobCandidatesPage() {
                   )}
                 >
                   <Avatar application={application} size="sm" />
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold text-heading truncate">
-                      {application.first_name} {application.last_name}
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="text-sm font-semibold text-heading truncate">
+                        {application.first_name} {application.last_name}
+                      </span>
+                      {activeStage === "phone" && phoneSchedules !== null && (
+                        <PhoneScheduleBadge scheduledAt={phoneSchedules[application.id] ?? null} />
+                      )}
                     </span>
                     <span className="block text-xs text-secondary mt-0.5">
                       Applied {formatDateTime(application.created_at)}
@@ -493,6 +541,9 @@ export default function JobCandidatesPage() {
               isSaving={isSaving}
               moveError={moveError}
               onMove={(stage) => moveCandidate(selected, stage)}
+              onPhoneScheduledAtChange={(scheduledAt) =>
+                setPhoneSchedules((prev) => ({ ...prev, [selected.id]: scheduledAt }))
+              }
             />
           )}
         </main>

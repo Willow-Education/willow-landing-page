@@ -173,12 +173,14 @@ export function InterviewNotes({
   questions,
   rubric = [],
   schedulable = false,
+  onScheduledAtChange,
 }: {
   applicationId: string;
   section: NotesSection;
   questions: InterviewQuestion[];
   rubric?: RubricCriterion[];
   schedulable?: boolean;
+  onScheduledAtChange?: (scheduledAt: string | null) => void;
 }) {
   const [notes, setNotes] = useState<Notes | null>(null);
   const [loadError, setLoadError] = useState(false);
@@ -250,11 +252,13 @@ export function InterviewNotes({
 
   // Scheduling is a discrete action, so it saves right away along with any
   // pending text edits instead of waiting on the debounce.
-  const schedule = (scheduledAt: string | null) => {
+  const schedule = async (scheduledAt: string | null) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     const next = { ...notes!, scheduledAt };
     setNotes(next);
-    return save(next);
+    const ok = await save(next);
+    if (ok) onScheduledAtChange?.(scheduledAt);
+    return ok;
   };
 
   const rate = (criterionId: string, score: number) => {
