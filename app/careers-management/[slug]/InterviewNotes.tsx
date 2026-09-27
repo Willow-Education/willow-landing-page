@@ -2,19 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import type { InterviewQuestion } from "@/lib/data/jobs";
+import type { InterviewQuestion, RubricCriterion } from "@/lib/data/jobs";
+import { cn } from "@/lib/utils";
 
 export type NotesSection = "phone" | "video" | "work_sample" | "final";
 
 interface Notes {
   general: string;
   questions: Record<string, string>;
+  ratings: Record<string, number>;
 }
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 const SAVE_DELAY_MS = 800;
-const EMPTY_NOTES: Notes = { general: "", questions: {} };
+const EMPTY_NOTES: Notes = { general: "", questions: {}, ratings: {} };
+
+// -5 to 5 with no neutral option, so every score leans one way.
+const SCALE = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5];
 
 const textareaClass =
   "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#062F29] focus:border-transparent transition-colors text-sm leading-relaxed";
@@ -32,10 +37,12 @@ export function InterviewNotes({
   applicationId,
   section,
   questions,
+  rubric = [],
 }: {
   applicationId: string;
   section: NotesSection;
   questions: InterviewQuestion[];
+  rubric?: RubricCriterion[];
 }) {
   const [notes, setNotes] = useState<Notes | null>(null);
   const [loadError, setLoadError] = useState(false);
@@ -104,19 +111,29 @@ export function InterviewNotes({
     timerRef.current = setTimeout(() => save(next), SAVE_DELAY_MS);
   };
 
+  const rate = (criterionId: string, score: number) => {
+    const ratings = { ...notes!.ratings };
+    // Clicking the selected score clears it.
+    if (ratings[criterionId] === score) delete ratings[criterionId];
+    else ratings[criterionId] = score;
+    update({ ...notes!, ratings });
+  };
+
   if (loadError) return <p className="text-sm text-red-600">Couldn&apos;t load notes.</p>;
   if (!notes) return <p className="text-sm text-secondary">Loading notes...</p>;
 
-  return (
-    <div className="space-y-8">
-      <p className="text-xs text-secondary h-4" aria-live="polite">
-        {status === "saving" && "Saving..."}
-        {status === "error" && <span className="text-red-600">Couldn&apos;t save. Keep typing to retry.</span>}
-        {(status === "saved" || status === "idle") &&
-          lastSaved &&
-          `Saved ${formatSavedAt(lastSaved.at)}${lastSaved.by ? ` by ${lastSaved.by}` : ""}`}
-      </p>
+  const statusLine = (
+    <p className="text-xs text-secondary h-4" aria-live="polite">
+      {status === "saving" && "Saving..."}
+      {status === "error" && <span className="text-red-600">Couldn&apos;t save. Keep typing to retry.</span>}
+      {(status === "saved" || status === "idle") &&
+        lastSaved &&
+        `Saved ${formatSavedAt(lastSaved.at)}${lastSaved.by ? ` by ${lastSaved.by}` : ""}`}
+    </p>
+  );
 
+  const questionFields = (
+    <div className="space-y-8">
       <div>
         <label htmlFor={`${section}-general`} className="block text-sm font-semibold text-primary mb-2">
           General notes
@@ -146,6 +163,66 @@ export function InterviewNotes({
           />
         </div>
       ))}
+    </div>
+  );
+
+  if (rubric.length === 0) {
+    return (
+      <div className="space-y-8">
+        {statusLine}
+        {questionFields}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {statusLine}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 items-start">
+        {questionFields}
+
+        <section className="xl:sticky xl:top-0 space-y-8 rounded-lg border border-gray-200 p-5 md:p-6">
+          <h3 className="text-sm font-semibold text-heading uppercase tracking-wide">Rubric</h3>
+          {rubric.map((criterion) => {
+            const labelId = `${section}-rubric-${criterion.id}`;
+            const selected = notes.ratings[criterion.id];
+            return (
+              <div key={criterion.id}>
+                <p id={labelId} className="text-sm font-semibold text-primary mb-3">
+                  {criterion.label}
+                </p>
+                <div className="flex items-center gap-2">
+                  <span aria-hidden className="text-lg shrink-0">
+                    👎
+                  </span>
+                  <div role="radiogroup" aria-labelledby={labelId} className="flex flex-1 gap-1">
+                    {SCALE.map((score) => (
+                      <button
+                        key={score}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected === score}
+                        onClick={() => rate(criterion.id, score)}
+                        className={cn(
+                          "flex-1 min-w-0 h-9 rounded-md border text-xs font-medium tabular-nums transition-colors",
+                          selected === score
+                            ? "bg-[#062F29] border-[#062F29] text-white"
+                            : "border-gray-300 text-secondary hover:border-[#062F29] hover:text-heading"
+                        )}
+                      >
+                        {score > 0 ? `+${score}` : score}
+                      </button>
+                    ))}
+                  </div>
+                  <span aria-hidden className="text-lg shrink-0">
+                    👍
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      </div>
     </div>
   );
 }

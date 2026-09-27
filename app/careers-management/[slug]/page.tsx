@@ -235,7 +235,12 @@ function ApplicationDetail({
         ))}
       </div>
 
-      <div className={cn("px-5 md:px-10 py-8 md:py-10", activeTab !== "resume" && "max-w-3xl")}>
+      <div
+        className={cn(
+          "px-5 md:px-10 py-8 md:py-10",
+          activeTab === "phone" ? "max-w-6xl" : activeTab !== "resume" && "max-w-3xl"
+        )}
+      >
         {activeTab === "application" && (
           <div className="space-y-8">
             <LinkRow label="Portfolio or prototype" href={application.portfolio_url} />
@@ -286,6 +291,7 @@ function ApplicationDetail({
             applicationId={application.id}
             section={activeTab}
             questions={job.interviews[activeTab]}
+            rubric={activeTab === "phone" ? job.interviews.phoneRubric : undefined}
           />
         )}
 

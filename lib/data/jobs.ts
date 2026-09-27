@@ -13,7 +13,9 @@
 //
 // `interviews` sets the questions shown in /careers-management for each
 // interview. Notes are saved against each question's `id`, so keep ids stable
-// when rewording a question.
+// when rewording a question. `phoneRubric` sets the criteria scored from -5 to
+// 5 on the phone interview tab; scores are saved against each criterion's `id`
+// the same way.
 
 export interface JobSection {
   heading: string;
@@ -35,8 +37,14 @@ export interface InterviewQuestion {
   question: string;
 }
 
+export interface RubricCriterion {
+  id: string;
+  label: string;
+}
+
 export interface JobInterviews {
   phone: InterviewQuestion[];
+  phoneRubric: RubricCriterion[];
   video: InterviewQuestion[];
   final: InterviewQuestion[];
 }
@@ -203,6 +211,15 @@ export const JOBS: Job[] = [
           question:
             "The role starts in early November, and the salary range is $80,000–$130,000. Does that work for you?",
         },
+      ],
+      phoneRubric: [
+        { id: "willow", label: "Familiarity with what Willow is and why Willow's work matters" },
+        { id: "agency", label: "Interest in working with a high degree of agency and accountability" },
+        {
+          id: "school-life",
+          label: "Understands what the life of people who work in schools is like, beyond platitudes",
+        },
+        { id: "timeline-salary", label: "Fit with timeline and salary" },
       ],
       video: [],
       final: [],
