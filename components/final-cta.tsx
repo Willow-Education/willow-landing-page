@@ -12,14 +12,15 @@ interface FinalCTAProps {
     text: string;
     href: string;
   };
+  sectionClassName?: string;
 }
 
-export function FinalCTA({ headline, singleButton }: FinalCTAProps = {}) {
+export function FinalCTA({ headline, singleButton, sectionClassName = "py-20 md:py-30" }: FinalCTAProps = {}) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
   return (
-    <section className="py-20 md:py-30 bg-white">
+    <section className={`${sectionClassName} bg-white`}>
       <div className="max-w-7xl mx-auto px-5 md:px-10 lg:px-16">
         <motion.div
           ref={ref}
