@@ -29,7 +29,7 @@ export default function AboutPage() {
       <main className="min-h-screen bg-white">
         {/* Hero Section */}
         <section className="pt-32 pb-16 md:pt-40 md:pb-20 bg-gray-50">
-          <div className="max-w-3xl mx-auto px-5 md:px-10 lg:px-16">
+          <div className="max-w-[820px] mx-auto px-5 md:px-10 lg:px-16">
             <motion.div
               ref={heroRef}
               initial={{ opacity: 0, y: 30 }}
@@ -47,8 +47,8 @@ export default function AboutPage() {
         </section>
 
         {/* Personal Note Section */}
-        <section className="py-10 md:py-20 bg-white">
-          <div className="max-w-3xl mx-auto px-5 md:px-10 lg:px-16">
+        <section className="pt-10 pb-8 md:pt-20 md:pb-12 bg-white">
+          <div className="max-w-[820px] mx-auto px-5 md:px-10 lg:px-16">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -86,7 +86,7 @@ export default function AboutPage() {
         </section>
 
         {/* Challenge Section */}
-        <section className="py-10 md:py-20 bg-white">
+        <section className="pt-8 pb-10 md:pt-12 md:pb-16 bg-white">
           <motion.div
             ref={challengeRef}
             initial={{ opacity: 0, y: 30 }}
@@ -94,7 +94,7 @@ export default function AboutPage() {
             transition={{ duration: 0.6 }}
           >
             {/* Section Header */}
-            <div className="max-w-3xl mx-auto px-5 md:px-10 lg:px-16 mb-16 md:mb-20">
+            <div className="max-w-[820px] mx-auto px-5 md:px-10 lg:px-16 mb-8 md:mb-10">
               <h4 className="font-heading text-2xl md:text-3xl font-medium text-heading mb-6">
                 The challenge: a system in crisis
               </h4>
@@ -104,8 +104,8 @@ export default function AboutPage() {
             </div>
 
             {/* Three Column Grid */}
-            <div className="max-w-5xl mx-auto px-5 md:px-10 lg:px-16 flex flex-col md:flex-row justify-start items-start gap-12 md:gap-12 lg:gap-16 mb-16">
-              <div className="flex flex-col items-start max-w-[280px]">
+            <div className="max-w-[820px] mx-auto px-5 md:px-10 lg:px-16 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 md:mb-10">
+              <div className="flex flex-col items-start">
                 <div className="w-16 h-16 mb-4 relative">
                   <Image
                     src="/about-us-assets/completion-gap-icon.svg"
@@ -122,7 +122,7 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="flex flex-col items-start max-w-[280px]">
+              <div className="flex flex-col items-start">
                 <div className="w-16 h-16 mb-4 relative">
                   <Image
                     src="/about-us-assets/debt-trap.svg"
@@ -139,7 +139,7 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="flex flex-col items-start max-w-[280px]">
+              <div className="flex flex-col items-start">
                 <div className="w-16 h-16 mb-4 relative">
                   <Image
                     src="/about-us-assets/underemployment-trap.svg"
@@ -158,7 +158,7 @@ export default function AboutPage() {
             </div>
 
             {/* Closing statement */}
-            <div className="max-w-3xl mx-auto px-5 md:px-10 lg:px-16">
+            <div className="max-w-[820px] mx-auto px-5 md:px-10 lg:px-16">
               <p className="text-gray-600 text-base leading-relaxed">
                 Quality college and professional programs can be life-changing. However, the inverse is true too. Dropping out with debt is the WORST outcome for young people. We have to be honest with our students about what programs are good, and which to avoid.
               </p>
@@ -167,8 +167,8 @@ export default function AboutPage() {
         </section>
 
         {/* Platform Statement Section */}
-        <section className="py-10 md:py-20 bg-white">
-          <div className="max-w-3xl mx-auto px-5 md:px-10 lg:px-16">
+        <section className="py-10 md:py-16 bg-white">
+          <div className="max-w-[820px] mx-auto px-5 md:px-10 lg:px-16">
             <motion.p
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -182,7 +182,7 @@ export default function AboutPage() {
         </section>
 
         {/* Solution Section */}
-        <section className="py-10 md:py-20 bg-white">
+        <section className="pt-10 pb-8 md:pt-16 md:pb-12 bg-white">
           <motion.div
             ref={solutionRef}
             initial={{ opacity: 0, y: 30 }}
@@ -190,7 +190,7 @@ export default function AboutPage() {
             transition={{ duration: 0.6 }}
           >
             {/* Section Header */}
-            <div className="max-w-3xl mx-auto px-5 md:px-10 lg:px-16 mb-16 md:mb-20">
+            <div className="max-w-[820px] mx-auto px-5 md:px-10 lg:px-16 mb-8 md:mb-10">
               <h4 className="font-heading text-2xl md:text-3xl font-medium text-heading mb-6">
                 The Willow solution: beyond &ldquo;college vs. career&rdquo;
               </h4>
@@ -200,8 +200,8 @@ export default function AboutPage() {
             </div>
 
             {/* Three Column Grid */}
-            <div className="max-w-5xl mx-auto px-5 md:px-10 lg:px-16 flex flex-col md:flex-row justify-start items-start gap-12 md:gap-12 lg:gap-16">
-              <div className="flex flex-col items-start max-w-[280px]">
+            <div className="max-w-[820px] mx-auto px-5 md:px-10 lg:px-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="flex flex-col items-start">
                 <div className="w-16 h-16 mb-4 relative">
                   <Image
                     src="/about-us-assets/roi-transparency.svg"
@@ -218,7 +218,7 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="flex flex-col items-start max-w-[280px]">
+              <div className="flex flex-col items-start">
                 <div className="w-16 h-16 mb-4 relative">
                   <Image
                     src="/about-us-assets/comprehensive-pathways.svg"
@@ -235,7 +235,7 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="flex flex-col items-start max-w-[280px]">
+              <div className="flex flex-col items-start">
                 <div className="w-16 h-16 mb-4 relative">
                   <Image
                     src="/about-us-assets/ai-powered-support.svg"
@@ -256,15 +256,15 @@ export default function AboutPage() {
         </section>
 
         {/* Progress Section */}
-        <section className="py-10 md:py-20 bg-white">
-          <div className="max-w-3xl mx-auto px-5 md:px-10 lg:px-16">
+        <section className="pt-8 pb-10 md:pt-12 md:pb-20 bg-white">
+          <div className="max-w-[820px] mx-auto px-5 md:px-10 lg:px-16">
             <motion.div
               ref={progressRef}
               initial={{ opacity: 0, y: 30 }}
               animate={progressInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
               transition={{ duration: 0.6 }}
             >
-              <h4 className="font-heading text-2xl md:text-3xl font-medium text-heading mb-4">
+              <h4 className="font-heading text-2xl md:text-3xl font-medium text-heading mb-6">
                 Our progress (and where we&apos;re going)
               </h4>
               <div className="space-y-6 text-secondary text-base leading-relaxed">
@@ -308,7 +308,7 @@ export default function AboutPage() {
               <p className="text-secondary text-base leading-relaxed mb-8">
                 We&apos;re a group of educators, designers, and builders who believe the system is fixable.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
                 <div>
                   <h3 className="font-heading text-lg font-semibold text-heading">James Cryan</h3>
                   <p className="text-secondary text-sm font-medium mb-2">Founder & CEO</p>
@@ -377,7 +377,7 @@ Liz has lived, breathed, and led successful school operations, with a focus on e
           </div>
         </section>
 
-        <FinalCTA />
+        <FinalCTA sectionClassName="pt-12 pb-20 md:pt-20 md:pb-30" />
       </main>
       <Footer />
     </>
