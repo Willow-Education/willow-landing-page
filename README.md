@@ -156,6 +156,12 @@ workspace itself, so there is nothing to configure.
   FAQ card on the workspace home page and an FAQ entry in its menu. It removes
   itself once the workspace ships its own link to the FAQ. Everything else under
   `/one-goal-planning` still goes through the plain rewrite.
+- **Alma on the workspace.** The same middleware adds Alma, the workspace guide
+  (`lib/one-goal-faq/workspace-alma.ts`), to every workspace page. She answers
+  through the workspace's own `/api/ask`, so she gets whatever the deployed
+  workspace supports, and she removes herself once the workspace renders its
+  own Alma. The FAQ page mounts her directly
+  (`app/one-goal-planning/faq/AlmaAssistant.tsx`).
 - **Content** is `content/one-goal-faq.md`. Edit it on GitHub; merging to
   `main` publishes it. The notes at the top of the file explain the format.
 - **Weekly updates** come from `.github/workflows/update-one-goal-faq.yml`.
