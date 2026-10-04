@@ -142,3 +142,21 @@ All visual assets (images, videos, logos) are currently grey placeholders ready 
 ## License
 
 All rights reserved - Willow Education
+
+## Partnership FAQ
+
+`/one-goal-planning/faq` is the Willow × OneGoal partnership FAQ. Everything
+else under `/one-goal-planning` is forwarded to the partnership workspace app
+(see `next.config.ts`); this one page is served from here. It is behind the
+workspace passcode: the page checks the visitor's workspace sign-in with the
+workspace itself, so there is nothing to configure.
+
+- **Content** is `content/one-goal-faq.md`. Edit it on GitHub; merging to
+  `main` publishes it. The notes at the top of the file explain the format.
+- **Automatic updates** come from `.github/workflows/update-one-goal-faq.yml`.
+  Every hour it reads the workspace for new meeting notes, documents, and
+  workstream changes, asks the model which answers they change, and commits the
+  revised FAQ and `content/one-goal-faq-updates.json` (the update log the page
+  shows) to `main`. Hours with nothing new make no commit. It needs two
+  repository secrets, `WORKSPACE_PASSCODE` and `OPENAI_API_KEY`, and does nothing
+  until both are set. Undo an automatic change by reverting its commit.

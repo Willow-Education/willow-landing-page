@@ -1,0 +1,50 @@
+name: Update the partnership FAQ
+
+# Hourly, reads the partnership workspace for new meeting notes, documents, and
+# workstream changes, revises the FAQ answers they affect, and commits the
+# result to main, which deploys it. Needs the WORKSPACE_PASSCODE and
+# OPENAI_API_KEY repository secrets; without them it does nothing.
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-one-goal-faq
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Review new workspace records
+        env:
+          WORKSPACE_PASSCODE: ${{ secrets.WORKSPACE_PASSCODE }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        run: npx --yes tsx@4 scripts/update-one-goal-faq.ts
+
+      - name: Commit FAQ changes
+        run: |
+          if git diff --quiet -- content/; then
+            echo "No FAQ changes to commit."
+            exit 0
+          fi
+          git config user.name "willow-faq-bot"
+          git config user.email "willow-faq-bot@users.noreply.github.com"
+          git add content/one-goal-faq.md content/one-goal-faq-updates.json
+          git commit -m "Update the partnership FAQ from new workspace records"
+          git push origin HEAD:main
