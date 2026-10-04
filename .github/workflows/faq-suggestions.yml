@@ -1,0 +1,49 @@
+name: Open pull requests for FAQ suggestions
+
+# Turns suggestions people send from the FAQ page into pull requests against
+# content/one-goal-faq.md: merge to accept, edit then merge to revise, close to
+# reject. Runs every two hours on weekdays during the Eastern working day, and
+# any time from the Actions tab.
+#
+# Needs the SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY repository secrets (the
+# table is created by supabase/faq_suggestions.sql); without them it does
+# nothing. Set the FAQ_REVIEWERS repository variable to comma-separated GitHub
+# usernames to have each pull request request their review.
+
+on:
+  schedule:
+    # 12:07 to 22:07 UTC: roughly 8am to 6pm Eastern in daylight time.
+    - cron: "7 12-22/2 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: faq-suggestions
+  cancel-in-progress: false
+
+jobs:
+  open:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Open a pull request for each new suggestion
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          FAQ_REVIEWERS: ${{ vars.FAQ_REVIEWERS }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "willow-faq-bot"
+          git config user.email "willow-faq-bot@users.noreply.github.com"
+          npx --yes tsx@4 scripts/open-faq-suggestion-prs.ts
