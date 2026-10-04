@@ -10,6 +10,7 @@ import {
   WORKSPACE_BASE_PATH,
   WORKSPACE_SESSION_COOKIE,
 } from "@/lib/one-goal-faq/workspace";
+import { AlmaAssistant } from "./AlmaAssistant";
 import { FaqBrowser } from "./FaqBrowser";
 
 // Partnership-internal: behind the workspace passcode and never indexed.
@@ -91,10 +92,15 @@ export default async function PartnershipFaqPage({
   const { faq, log } = await readContent();
 
   return (
-    <FaqBrowser
-      sections={faq.sections}
-      updates={log.updates.slice(0, 60)}
-      lastCheckedAt={log.lastCheckedAt}
-    />
+    <>
+      <FaqBrowser
+        sections={faq.sections}
+        updates={log.updates.slice(0, 60)}
+        lastCheckedAt={log.lastCheckedAt}
+      />
+      {/* The workspace pages show Alma from their own shell; this page is
+          served by this site, so it mounts her itself. */}
+      <AlmaAssistant />
+    </>
   );
 }
