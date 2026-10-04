@@ -151,6 +151,11 @@ else under `/one-goal-planning` is forwarded to the partnership workspace app
 workspace passcode: the page checks the visitor's workspace sign-in with the
 workspace itself, so there is nothing to configure.
 
+- **Links from the workspace.** `middleware.ts` adds a small script to full page
+  loads of the workspace (`lib/one-goal-faq/workspace-links.ts`) that puts an
+  FAQ card on the workspace home page and an FAQ entry in its menu. It removes
+  itself once the workspace ships its own link to the FAQ. Everything else under
+  `/one-goal-planning` still goes through the plain rewrite.
 - **Content** is `content/one-goal-faq.md`. Edit it on GitHub; merging to
   `main` publishes it. The notes at the top of the file explain the format.
 - **Weekly updates** come from `.github/workflows/update-one-goal-faq.yml`.
