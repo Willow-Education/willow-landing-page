@@ -317,7 +317,7 @@ export function AlmaAssistant() {
         <AlmaMark />
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-semibold tracking-tight text-[#171b4a]">Alma</h2>
-          <p className="text-xs text-[#737b78]">Your guide to the partnership workspace</p>
+          <p className="text-xs text-[#737b78]">Willow&apos;s AI assistant</p>
         </div>
         {turns.length > 0 ? (
           <button
@@ -343,7 +343,7 @@ export function AlmaAssistant() {
         {turns.length === 0 ? (
           <div>
             <p className="leading-6 text-[#59635f]">
-              Hi, I&apos;m Alma. Ask me anything about the partnership, or where to find something in the
+              Hi, I&apos;m Alma, Willow&apos;s AI assistant. Ask me anything about the partnership, or where to find something in the
               workspace. I answer from the operating plan, the workstreams, the people directory, and the
               meeting record.
             </p>
