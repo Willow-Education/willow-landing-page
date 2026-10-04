@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -103,6 +103,142 @@ function SourceList({ sources }: { sources: FaqSourceRef[] }) {
   );
 }
 
+const NAME_STORAGE_KEY = "willow-faq-suggester-name";
+
+const FIELD_CLASS =
+  "mt-2 w-full rounded-xl border border-[#171b4a]/15 bg-white px-4 py-3 text-[15px] text-[#252b37] outline-none transition focus:border-[#17bfc2] focus:ring-4 focus:ring-[#17e1e3]/15";
+
+// Sends a suggested improvement to one answer. It reaches James and Ryan as a
+// pull request they can accept, revise, or reject.
+function SuggestForm({ item, onDone }: { item: FaqItem; onDone: () => void }) {
+  const [answer, setAnswer] = useState(item.answer);
+  const [reason, setReason] = useState("");
+  const [name, setName] = useState("");
+  const [state, setState] = useState<"editing" | "sending" | "sent">("editing");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    try {
+      // Remembering the name is a convenience; storage can be unavailable.
+      setName(window.localStorage.getItem(NAME_STORAGE_KEY) ?? "");
+    } catch {}
+  }, []);
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setState("sending");
+    setError("");
+
+    try {
+      const response = await fetch("/one-goal-planning/faq/suggest", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ itemId: item.id, suggestedAnswer: answer, reason, suggestedBy: name }),
+      });
+      const payload: unknown = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const message =
+          payload && typeof payload === "object" && "error" in payload ? (payload as { error?: unknown }).error : null;
+        throw new Error(typeof message === "string" ? message : "The suggestion could not be sent.");
+      }
+
+      try {
+        window.localStorage.setItem(NAME_STORAGE_KEY, name.trim());
+      } catch {}
+      setState("sent");
+    } catch (sendError) {
+      setError(sendError instanceof Error ? sendError.message : "The suggestion could not be sent.");
+      setState("editing");
+    }
+  };
+
+  if (state === "sent") {
+    return (
+      <div role="status" className="mt-5 rounded-xl bg-[#e8f9ea] px-4 py-3 text-sm text-[#315c3b]">
+        <p className="font-bold">Thanks, your suggestion is in.</p>
+        <p className="mt-1">James and Ryan will review it and accept or revise it. The answer here changes once they do.</p>
+        <button type="button" onClick={onDone} className="mt-2 text-xs font-bold text-[#0f7c80] hover:underline">
+          Close
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={submit} className="mt-5 space-y-4 rounded-xl border border-[#171b4a]/10 bg-[#fafaf8] p-4 sm:p-5">
+      <p className="text-sm font-bold text-[#171b4a]">Suggest an improvement</p>
+      <div>
+        <label htmlFor={`suggest-reason-${item.id}`} className="text-sm font-semibold text-[#171b4a]">
+          What is dated or wrong?
+        </label>
+        <textarea
+          id={`suggest-reason-${item.id}`}
+          value={reason}
+          onChange={(event) => setReason(event.target.value)}
+          rows={2}
+          required
+          minLength={5}
+          maxLength={2000}
+          placeholder="e.g. Pricing guidance went out at Workshop 3 on Oct 26."
+          className={FIELD_CLASS}
+        />
+      </div>
+      <div>
+        <label htmlFor={`suggest-answer-${item.id}`} className="text-sm font-semibold text-[#171b4a]">
+          The answer as it should read
+        </label>
+        <textarea
+          id={`suggest-answer-${item.id}`}
+          value={answer}
+          onChange={(event) => setAnswer(event.target.value)}
+          rows={Math.min(16, Math.max(5, Math.ceil(answer.length / 90)))}
+          required
+          maxLength={12000}
+          className={`${FIELD_CLASS} leading-6`}
+        />
+      </div>
+      <div>
+        <label htmlFor={`suggest-name-${item.id}`} className="text-sm font-semibold text-[#171b4a]">
+          Your name
+        </label>
+        <input
+          id={`suggest-name-${item.id}`}
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          required
+          minLength={2}
+          maxLength={100}
+          autoComplete="name"
+          className={FIELD_CLASS}
+        />
+      </div>
+      {error ? (
+        <p role="alert" className="text-sm font-semibold text-[#a52d1f]">
+          {error}
+        </p>
+      ) : null}
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="submit"
+          disabled={state === "sending"}
+          className="rounded-full bg-[#171b4a] px-5 py-2.5 text-sm font-bold text-white transition-transform hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-70"
+        >
+          {state === "sending" ? "Sending…" : "Send suggestion"}
+        </button>
+        <button
+          type="button"
+          onClick={onDone}
+          disabled={state === "sending"}
+          className="rounded-full border border-[#171b4a]/12 bg-white px-5 py-2.5 text-sm font-bold text-[#59635f] transition-colors hover:text-[#171b4a]"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function FaqEntry({
   item,
   isOpen,
@@ -117,6 +253,7 @@ function FaqEntry({
   now: number;
 }) {
   const [copied, setCopied] = useState(false);
+  const [isSuggesting, setIsSuggesting] = useState(false);
   const isRecent = update && now > 0 && now - Date.parse(update.at) < RECENT_CHANGE_MS;
 
   const copyLink = async () => {
@@ -182,14 +319,25 @@ function FaqEntry({
                 "From the Sept 29 FAQ, or edited since by hand."
               )}
             </p>
-            <button
-              type="button"
-              onClick={() => void copyLink()}
-              className="shrink-0 self-start rounded-full border border-[#171b4a]/12 bg-white px-3.5 py-1.5 text-xs font-bold text-[#59635f] transition-colors hover:border-[#17bfc2] hover:text-[#171b4a]"
-            >
-              {copied ? "Link copied" : "Copy link"}
-            </button>
+            <div className="flex shrink-0 flex-wrap gap-2 self-start">
+              <button
+                type="button"
+                onClick={() => setIsSuggesting(true)}
+                disabled={isSuggesting}
+                className="rounded-full border border-[#171b4a]/12 bg-white px-3.5 py-1.5 text-xs font-bold text-[#59635f] transition-colors hover:border-[#17bfc2] hover:text-[#171b4a] disabled:opacity-50"
+              >
+                Suggest an improvement
+              </button>
+              <button
+                type="button"
+                onClick={() => void copyLink()}
+                className="rounded-full border border-[#171b4a]/12 bg-white px-3.5 py-1.5 text-xs font-bold text-[#59635f] transition-colors hover:border-[#17bfc2] hover:text-[#171b4a]"
+              >
+                {copied ? "Link copied" : "Copy link"}
+              </button>
+            </div>
           </div>
+          {isSuggesting ? <SuggestForm item={item} onDone={() => setIsSuggesting(false)} /> : null}
         </div>
       ) : null}
     </li>

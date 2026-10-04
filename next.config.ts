@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
   // The partnership FAQ page reads its content files at request time.
   outputFileTracingIncludes: {
     "/one-goal-planning/faq": ["./content/one-goal-faq.md", "./content/one-goal-faq-updates.json"],
+    "/one-goal-planning/faq/suggest": ["./content/one-goal-faq.md"],
   },
   images: {
     qualities: [75, 80, 85, 90],

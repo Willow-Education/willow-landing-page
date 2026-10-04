@@ -164,6 +164,17 @@ workspace itself, so there is nothing to configure.
   (`app/one-goal-planning/faq/AlmaAssistant.tsx`).
 - **Content** is `content/one-goal-faq.md`. Edit it on GitHub; merging to
   `main` publishes it. The notes at the top of the file explain the format.
+- **Suggestions.** Each answer has a "Suggest an improvement" button. A
+  suggestion (the corrected answer, what was dated or wrong, and the
+  suggester's name) is saved to the `faq_suggestions` table in Supabase and
+  emailed to james@willowed.org. Every two hours on weekdays,
+  `.github/workflows/faq-suggestions.yml` turns each new one into a pull
+  request against `content/one-goal-faq.md`: merge to accept, edit then merge
+  to revise, close to reject. One-time setup: run
+  `supabase/faq_suggestions.sql` in the Supabase SQL editor, then add the
+  `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` repository secrets. Set the
+  `FAQ_REVIEWERS` repository variable (comma-separated GitHub usernames) to
+  have each pull request request their review.
 - **Weekly updates** come from `.github/workflows/update-one-goal-faq.yml`.
   Every Monday morning (Eastern) it reads the workspace for new meeting notes,
   documents, and workstream changes, asks the model which answers they change,
