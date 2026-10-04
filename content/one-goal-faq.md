@@ -7,7 +7,7 @@ How to edit this FAQ
 - The answer follows on the same line and can run on to more paragraphs, lists, or tables.
 - Leave a blank line before each question and each "## " section heading.
 - Edits merged to main go live on willowed.org/one-goal-planning/faq within a few minutes.
-- An hourly GitHub Action (.github/workflows/update-one-goal-faq.yml) also revises answers from new workspace records and commits them here. Undo one of its changes by reverting its commit.
+- Every Monday morning a GitHub Action (.github/workflows/update-one-goal-faq.yml) revises answers from new workspace records and opens a pull request called "FAQ updates, week of ...". Merge it to publish the changes, edit it first to fix them, or close it to skip them.
 -->
 
 ## How to use this FAQ

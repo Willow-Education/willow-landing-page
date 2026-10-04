@@ -1,17 +1,24 @@
 name: Update the partnership FAQ
 
-# Hourly, reads the partnership workspace for new meeting notes, documents, and
-# workstream changes, revises the FAQ answers they affect, and commits the
-# result to main, which deploys it. Needs the WORKSPACE_PASSCODE and
-# OPENAI_API_KEY repository secrets; without them it does nothing.
+# Every Monday morning, reads the partnership workspace for new meeting notes,
+# documents, and workstream changes, revises the FAQ answers they affect, and
+# opens a pull request with the changes. Merging it publishes them. If last
+# week's pull request is still open, this week's run replaces its contents
+# instead of opening a second one.
+#
+# Needs the WORKSPACE_PASSCODE and OPENAI_API_KEY repository secrets; without
+# them it does nothing. Run it any time from the Actions tab.
 
 on:
   schedule:
-    - cron: "17 * * * *"
+    # GitHub schedules run on UTC: 6:52am Eastern in daylight time, 5:52am in
+    # standard time.
+    - cron: "52 10 * * 1"
   workflow_dispatch:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: update-one-goal-faq
@@ -35,16 +42,40 @@ jobs:
           WORKSPACE_PASSCODE: ${{ secrets.WORKSPACE_PASSCODE }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          FAQ_SUMMARY_PATH: ${{ runner.temp }}/faq-summary.md
         run: npx --yes tsx@4 scripts/update-one-goal-faq.ts
 
-      - name: Commit FAQ changes
+      - name: Open or refresh the weekly pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FAQ_SUMMARY_PATH: ${{ runner.temp }}/faq-summary.md
         run: |
           if git diff --quiet -- content/; then
-            echo "No FAQ changes to commit."
+            echo "Nothing new in the workspace this week."
             exit 0
           fi
+
           git config user.name "willow-faq-bot"
           git config user.email "willow-faq-bot@users.noreply.github.com"
+
+          # Records were reviewed but no answer changed: record that on main so
+          # they are not reviewed again, without asking anyone to merge a no-op.
+          if git diff --quiet -- content/one-goal-faq.md; then
+            git add content/one-goal-faq-updates.json
+            git commit -m "Record this week's FAQ review (no answer changes)"
+            git push origin HEAD:main || echo "::warning::Could not record the review on main; next week's run will review these records again."
+            exit 0
+          fi
+
+          branch="faq-weekly-update"
+          title="FAQ updates, week of $(TZ=America/New_York date +'%b %-d, %Y')"
+          git checkout -B "$branch"
           git add content/one-goal-faq.md content/one-goal-faq-updates.json
-          git commit -m "Update the partnership FAQ from new workspace records"
-          git push origin HEAD:main
+          git commit -m "Update the partnership FAQ from this week's workspace records"
+          git push --force origin "$branch"
+
+          if [ "$(gh pr view "$branch" --json state --jq .state 2>/dev/null)" = "OPEN" ]; then
+            gh pr edit "$branch" --title "$title" --body-file "$FAQ_SUMMARY_PATH"
+          else
+            gh pr create --base main --head "$branch" --title "$title" --body-file "$FAQ_SUMMARY_PATH"
+          fi
