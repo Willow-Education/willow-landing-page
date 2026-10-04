@@ -286,7 +286,7 @@ function workspaceAlmaScript() {
   header.appendChild(mark(36));
   const titles = el("div", "min-width:0;flex:1;");
   titles.appendChild(el("h2", `margin:0;font-size:18px;font-weight:600;letter-spacing:-0.03em;color:${NAVY};`, "Alma"));
-  titles.appendChild(el("p", `margin:0;font-size:12px;color:${SOFT};`, "Your guide to the partnership workspace"));
+  titles.appendChild(el("p", `margin:0;font-size:12px;color:${SOFT};`, "Willow's AI assistant"));
   header.appendChild(titles);
 
   const startOver = el(
@@ -389,7 +389,7 @@ function workspaceAlmaScript() {
         el(
           "p",
           `margin:0;line-height:24px;color:${MUTED};`,
-          "Hi, I'm Alma. Ask me anything about the partnership, or where to find something in this workspace. I answer from the operating plan, the workstreams, and the meeting record.",
+          "Hi, I'm Alma, Willow's AI assistant. Ask me anything about the partnership, or where to find something in this workspace. I answer from the operating plan, the workstreams, and the meeting record.",
         ),
       );
       conversation.appendChild(
