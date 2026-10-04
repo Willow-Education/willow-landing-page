@@ -2,10 +2,12 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { WORKSPACE_APP_ORIGIN } from "@/lib/one-goal-faq/workspace";
 import { isFaqPath, WORKSPACE_LINKS_SCRIPT } from "@/lib/one-goal-faq/workspace-links";
+import { WORKSPACE_ALMA_SCRIPT } from "@/lib/one-goal-faq/workspace-alma";
 
 // Full page loads of the partnership workspace are fetched here instead of
-// through the plain rewrite in next.config.ts, so the FAQ links can be added
-// to the page (see lib/one-goal-faq/workspace-links.ts). Everything else (the
+// through the plain rewrite in next.config.ts, so the FAQ links and Alma can be
+// added to the page (see lib/one-goal-faq/workspace-links.ts and
+// lib/one-goal-faq/workspace-alma.ts). Everything else (the
 // workspace's scripts, data requests, in-app navigation, form posts, and the
 // FAQ itself, which this site serves) continues straight to the rewrite.
 
@@ -82,7 +84,7 @@ export async function middleware(request: NextRequest) {
 
   const html = await upstream.text();
   const withLinks = html.includes("</body>")
-    ? html.replace(/<\/body>(?![\s\S]*<\/body>)/, `${WORKSPACE_LINKS_SCRIPT}</body>`)
+    ? html.replace(/<\/body>(?![\s\S]*<\/body>)/, `${WORKSPACE_LINKS_SCRIPT}${WORKSPACE_ALMA_SCRIPT}</body>`)
     : html;
 
   return new Response(withLinks, { status: upstream.status, headers: responseHeaders });
