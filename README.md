@@ -153,10 +153,13 @@ workspace itself, so there is nothing to configure.
 
 - **Content** is `content/one-goal-faq.md`. Edit it on GitHub; merging to
   `main` publishes it. The notes at the top of the file explain the format.
-- **Automatic updates** come from `.github/workflows/update-one-goal-faq.yml`.
-  Every hour it reads the workspace for new meeting notes, documents, and
-  workstream changes, asks the model which answers they change, and commits the
-  revised FAQ and `content/one-goal-faq-updates.json` (the update log the page
-  shows) to `main`. Hours with nothing new make no commit. It needs two
-  repository secrets, `WORKSPACE_PASSCODE` and `OPENAI_API_KEY`, and does nothing
-  until both are set. Undo an automatic change by reverting its commit.
+- **Weekly updates** come from `.github/workflows/update-one-goal-faq.yml`.
+  Every Monday morning (Eastern) it reads the workspace for new meeting notes,
+  documents, and workstream changes, asks the model which answers they change,
+  and opens a pull request, "FAQ updates, week of ...", with the revised FAQ,
+  the update log the page shows, and a description of every change and its
+  source. Merging it publishes the changes. An unmerged pull request is
+  refreshed the next Monday rather than duplicated. A week whose records change
+  no answers only records that they were reviewed. It needs two repository
+  secrets, `WORKSPACE_PASSCODE` and `OPENAI_API_KEY`, and does nothing until
+  both are set; it can also be run any time from the Actions tab.
