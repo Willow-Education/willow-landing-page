@@ -13,6 +13,7 @@ import {
   type StageId,
 } from "@/lib/data/hiring-stages";
 import { cn } from "@/lib/utils";
+import { HiringReport } from "./HiringReport";
 import { InterviewNotes } from "./InterviewNotes";
 import { OverallNotes } from "./OverallNotes";
 
@@ -331,6 +332,7 @@ export default function JobCandidatesPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [moveError, setMoveError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<DetailTab>("application");
+  const [showReport, setShowReport] = useState(false);
   // Phone interview time per application id; null until loaded.
   const [phoneSchedules, setPhoneSchedules] = useState<Record<string, string | null> | null>(null);
 
@@ -389,6 +391,7 @@ export default function JobCandidatesPage() {
     stageApplications.find((a) => a.id === selectedId) ?? stageApplications[0] ?? null;
 
   const selectStage = (stage: StageId) => {
+    setShowReport(false);
     setActiveStage(stage);
     setSelectedId(null);
     setMoveError(null);
@@ -463,7 +466,7 @@ export default function JobCandidatesPage() {
         <div className="px-3 md:px-6 mt-4 flex overflow-x-auto" role="tablist">
           {ALL_STAGES.map((stage) => {
             const count = applications?.filter((a) => a.stage === stage.id).length ?? 0;
-            const isActive = stage.id === activeStage;
+            const isActive = !showReport && stage.id === activeStage;
             return (
               <button
                 key={stage.id}
@@ -485,78 +488,105 @@ export default function JobCandidatesPage() {
               </button>
             );
           })}
+          <button
+            role="tab"
+            aria-selected={showReport}
+            onClick={() => setShowReport(true)}
+            className={cn(
+              "shrink-0 ml-auto px-3 py-3 text-sm border-b-2 -mb-px transition-colors",
+              showReport
+                ? "border-[#062F29] text-heading font-semibold"
+                : "border-transparent text-secondary hover:text-heading"
+            )}
+          >
+            Report
+          </button>
         </div>
       </div>
 
       {error && <p className="px-5 md:px-8 py-4 text-sm text-red-600">{error}</p>}
 
-      <div className="flex-1 min-h-0 flex flex-col md:flex-row">
-        {/* Candidates in the active stage */}
-        <aside className="md:w-80 shrink-0 border-b md:border-b-0 md:border-r border-gray-200 max-h-72 md:max-h-none overflow-y-auto">
-          {applications !== null && stageApplications.length === 0 && (
-            <p className="px-5 py-6 text-sm text-secondary">
-              No candidates in {getStage(activeStage).label}.
-            </p>
-          )}
-          <ul>
-            {stageApplications.map((application) => (
-              <li key={application.id}>
-                <button
-                  onClick={() => selectCandidate(application.id)}
-                  className={cn(
-                    "w-full text-left px-5 py-4 border-b border-gray-100 flex items-center gap-3 transition-colors",
-                    application.id === selected?.id ? "bg-gray-100" : "hover:bg-gray-50"
-                  )}
-                >
-                  <Avatar application={application} size="sm" />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-baseline justify-between gap-2">
-                      <span className="text-sm font-semibold text-heading truncate">
-                        {application.first_name} {application.last_name}
-                      </span>
-                      {activeStage === "phone" && phoneSchedules !== null && (
-                        <PhoneScheduleBadge scheduledAt={phoneSchedules[application.id] ?? null} />
-                      )}
-                    </span>
-                    <span className="block text-xs text-secondary mt-0.5">
-                      Applied {formatDateTime(application.created_at)}
-                      {" · "}
-                      <span className="text-amber-700">{daysInStage(application)}d in stage</span>
-                    </span>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </aside>
-
-        {/* Selected application, with its overall notes beside it (below it on narrower screens) */}
-        <div className="flex-1 min-w-0 md:overflow-y-auto xl:overflow-hidden flex flex-col xl:flex-row">
-          <main className="flex-1 min-w-0 xl:overflow-y-auto">
-            {selected && (
-              <ApplicationDetail
-                key={selected.id}
-                job={job}
-                application={selected}
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                isSaving={isSaving}
-                moveError={moveError}
-                onMove={(stage) => moveCandidate(selected, stage)}
-                onPhoneScheduledAtChange={(scheduledAt) =>
-                  setPhoneSchedules((prev) => ({ ...prev, [selected.id]: scheduledAt }))
-                }
-              />
-            )}
-          </main>
-
-          {selected && (
-            <aside className="xl:w-96 shrink-0 border-t xl:border-t-0 xl:border-l border-gray-200 bg-[#F8F6F3] xl:overflow-y-auto">
-              <OverallNotes key={selected.id} applicationId={selected.id} />
-            </aside>
+      {showReport ? (
+        <div className="flex-1 min-h-0 md:overflow-y-auto">
+          {applications !== null && (
+            <HiringReport
+              applications={applications}
+              onSelect={(application) => {
+                selectStage(application.stage);
+                setSelectedId(application.id);
+              }}
+            />
           )}
         </div>
-      </div>
+      ) : (
+        <div className="flex-1 min-h-0 flex flex-col md:flex-row">
+          {/* Candidates in the active stage */}
+          <aside className="md:w-80 shrink-0 border-b md:border-b-0 md:border-r border-gray-200 max-h-72 md:max-h-none overflow-y-auto">
+            {applications !== null && stageApplications.length === 0 && (
+              <p className="px-5 py-6 text-sm text-secondary">
+                No candidates in {getStage(activeStage).label}.
+              </p>
+            )}
+            <ul>
+              {stageApplications.map((application) => (
+                <li key={application.id}>
+                  <button
+                    onClick={() => selectCandidate(application.id)}
+                    className={cn(
+                      "w-full text-left px-5 py-4 border-b border-gray-100 flex items-center gap-3 transition-colors",
+                      application.id === selected?.id ? "bg-gray-100" : "hover:bg-gray-50"
+                    )}
+                  >
+                    <Avatar application={application} size="sm" />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-baseline justify-between gap-2">
+                        <span className="text-sm font-semibold text-heading truncate">
+                          {application.first_name} {application.last_name}
+                        </span>
+                        {activeStage === "phone" && phoneSchedules !== null && (
+                          <PhoneScheduleBadge scheduledAt={phoneSchedules[application.id] ?? null} />
+                        )}
+                      </span>
+                      <span className="block text-xs text-secondary mt-0.5">
+                        Applied {formatDateTime(application.created_at)}
+                        {" · "}
+                        <span className="text-amber-700">{daysInStage(application)}d in stage</span>
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </aside>
+  
+          {/* Selected application, with its overall notes beside it (below it on narrower screens) */}
+          <div className="flex-1 min-w-0 md:overflow-y-auto xl:overflow-hidden flex flex-col xl:flex-row">
+            <main className="flex-1 min-w-0 xl:overflow-y-auto">
+              {selected && (
+                <ApplicationDetail
+                  key={selected.id}
+                  job={job}
+                  application={selected}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                  isSaving={isSaving}
+                  moveError={moveError}
+                  onMove={(stage) => moveCandidate(selected, stage)}
+                  onPhoneScheduledAtChange={(scheduledAt) =>
+                    setPhoneSchedules((prev) => ({ ...prev, [selected.id]: scheduledAt }))
+                  }
+                />
+              )}
+            </main>
+  
+            {selected && (
+              <aside className="xl:w-96 shrink-0 border-t xl:border-t-0 xl:border-l border-gray-200 bg-[#F8F6F3] xl:overflow-y-auto">
+                <OverallNotes key={selected.id} applicationId={selected.id} />
+              </aside>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
