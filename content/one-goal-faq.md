@@ -30,7 +30,7 @@ Dates, milestones, and who owns what are not repeated here. They live on this si
 
 **What is the OneGoal and Willow partnership? (Settled)** To best run the whole-school model, OneGoal has prioritized finding a technology infrastructure that would allow for that program to run. After 6 months of diligence and partnership conversations, OneGoal and Willow Education, a mission-aligned career and college readiness curriculum and platform company are proud to share their partnership.
 
-OneGoal is moving its student, teacher, and administrator technology onto Willow's platform, and the two organizations are co-designing one 9-12 curriculum and going to market together on OneGoal's new whole-school model. It is a three-year co-development agreement. OneGoal's board approved it Aug 13, 2026; a memorandum of understanding was signed in August; the definitive agreement is targeted for mid-October.
+OneGoal is moving its student, teacher, and administrator technology onto Willow's platform, and the two organizations are co-designing one 9-12 curriculum and going to market together on OneGoal's new whole-school model. It is a three-year co-development agreement. OneGoal's board approved it Aug 13, 2026; a memorandum of understanding was signed in August; the definitive agreement is targeted for mid-October. (Test edit, do not merge.)
 
 **Is this a merger or an acquisition? (Settled)** No. OneGoal and Willow stay separate organizations. OneGoal keeps full ownership of its district relationships, brand, and revenue. Willow is the technology and curriculum partner.
 
