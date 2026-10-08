@@ -90,7 +90,7 @@ export default function PrivacyPolicyPage() {
                   The Platform includes an AI assistant, called Alma, and other AI-assisted features. This section describes how they handle student information.
                 </p>
                 <p className="text-secondary leading-relaxed mb-4">
-                  <strong className="font-semibold">AI use.</strong> Willow&apos;s AI features, including the Alma assistant, send their prompts to Anthropic, the only generative AI provider Willow uses. A prompt contains the student&apos;s first name, grade, a short summary of the student&apos;s goals relevant to the conversation, and the student&apos;s typed message. Prompts never include email, phone, address, date of birth, demographic fields, or other students&apos; data. Alma conversations are kept for 24 months after their last activity, then deleted. Willow does not operate a proprietary AI model.
+                  <strong className="font-semibold">AI use.</strong> Willow&apos;s AI features, including the Alma assistant, send their prompts to Anthropic, the only generative AI provider Willow uses. A prompt contains the student&apos;s first name, grade, a short summary of the student&apos;s goals relevant to the conversation, and the student&apos;s typed message. Prompts never include email, phone, address, date of birth, demographic fields, or other students&apos; data. Alma conversations are kept for 24 months after their last activity, then deleted. Other AI features, such as reflections, exit tickets and offer-letter review, also send the student-written text or uploaded document they work on. Willow does not operate a proprietary AI model.
                 </p>
                 <p className="text-secondary leading-relaxed mb-4">
                   <strong className="font-semibold">OpenAI.</strong> OpenAI is used only to turn reference content (career and school descriptions) and search queries into numerical search data called embeddings. It generates no content and receives no student identifiers.
@@ -121,7 +121,7 @@ export default function PrivacyPolicyPage() {
                   5. How information is shared
                 </h2>
                 <p className="text-secondary leading-relaxed mb-4">
-                  Willow shares student data only with the service providers listed below and in these school-directed ways: (a) Common App: once a school turns on its Common App integration, and only after a student links their Common App account and signs Common App&apos;s FERPA waiver, counselors, school administrators and the student&apos;s assigned teachers submit school reports, recommendations and related forms, which can include GPA, class rank, transcripts and letters, to the colleges on that student&apos;s Common App list; (b) counselors and school administrators can email a student&apos;s documents to a college&apos;s admissions address on file. Willow&apos;s only message to a parent or guardian is a request to sign an Early Decision agreement, sent only when the student asks.
+                  Willow shares student data only with the service providers listed below and in these school-directed ways: (a) Common App: once a school turns on its Common App integration, and only after a student links their Common App account and signs Common App&apos;s FERPA waiver, counselors, school administrators and the student&apos;s assigned teachers submit school reports, recommendations and related forms, which can include GPA, class rank, transcripts and letters, to the colleges on that student&apos;s Common App list; (b) counselors and school administrators can email a student&apos;s documents to a college&apos;s admissions address on file. Willow&apos;s only message to a parent or guardian is a request to sign an Early Decision agreement, sent only when the student asks. Willow also shares student data with the School itself and its authorized staff, and discloses it where the law requires.
                 </p>
                 <p className="text-secondary leading-relaxed">
                   We never sell student information, never share it for advertising, and will not transfer it in a merger, acquisition or bankruptcy except to a successor that agrees in writing to be bound by these commitments.
@@ -163,7 +163,7 @@ export default function PrivacyPolicyPage() {
                   </table>
                 </div>
                 <p className="text-secondary leading-relaxed">
-                  All providers that handle student data are hosted in the United States. Willow will update this list within thirty (30) days of adding or removing a provider that handles student data, and will notify Schools under the terms of their agreements.
+                  Student data is stored in the United States. Willow will update this list within thirty (30) days of adding or removing a provider that handles student data, and will notify Schools under the terms of their agreements.
                 </p>
               </div>
 
