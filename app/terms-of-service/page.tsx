@@ -1,6 +1,7 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { pageMetadata } from "@/lib/metadata";
+import { serviceProviders } from "@/lib/service-providers";
 
 export const metadata = pageMetadata({
   title: "Terms of Service | Willow Education",
@@ -32,7 +33,7 @@ export default function TermsOfServicePage() {
                 Terms of service agreement
               </h2>
               <p className="text-base text-secondary leading-relaxed mb-4">
-                Effective September 18, 2026.
+                Effective October 7, 2026.
               </p>
               <p className="text-base text-secondary leading-relaxed mb-12">
                 This Terms of Service Agreement (&quot;Agreement&quot;) is between Willow Ed, PBC, a Delaware public benefit corporation doing business as Willow Education (&quot;Company&quot;), and the school, district, or organization that accesses the web application known as Willow Ed (the &quot;Application&quot;) on behalf of its students (&quot;School&quot;).
@@ -77,13 +78,35 @@ export default function TermsOfServicePage() {
                   4. Student data and privacy
                 </h2>
                 <p className="text-secondary leading-relaxed mb-4">
-                  Company processes personal information of Users, including student education records, solely to provide, maintain, secure, and support the Application for the School, and, where applicable, as a &quot;school official&quot; with a legitimate educational interest under FERPA. The School retains ownership of all student data. Company does not sell student data, does not use it for targeted advertising, and does not use it to train generalized or foundation artificial intelligence models.
+                  Company processes personal information of Users, including student education records, solely to provide, maintain, secure, and support the Application for the School. The School retains ownership of all student data.
                 </p>
                 <p className="text-secondary leading-relaxed mb-4">
-                  The Application includes an AI assistant that processes student input through third-party AI providers. Those providers are bound by contract not to train models on student data and to limit data retention. Every AI interaction is screened automatically, and content that raises a safety concern is routed to the School&apos;s designated staff for review. The AI assistant provides information and support only; it does not make or determine decisions affecting a student&apos;s academic or postsecondary record.
+                  <strong className="font-semibold">FERPA.</strong> When Willow serves a school, Willow acts as a school official under FERPA. It uses education records only for the school&apos;s purposes and does not redisclose them without the school&apos;s written permission, except as FERPA allows. Parents and eligible students exercise their rights to inspect, amend, and consent through their school.
                 </p>
+                <p className="text-secondary leading-relaxed mb-4">
+                  <strong className="font-semibold">AI use.</strong> Willow&apos;s AI features, including the Alma assistant, send their prompts to Anthropic, the only generative AI provider Willow uses. A prompt contains the student&apos;s first name, grade, a short summary of the student&apos;s goals relevant to the conversation, and the student&apos;s typed message. Prompts never include email, phone, address, date of birth, demographic fields, or other students&apos; data. Alma conversations are kept for 24 months after their last activity, then deleted.
+                </p>
+                <p className="text-secondary leading-relaxed mb-4">
+                  <strong className="font-semibold">OpenAI.</strong> OpenAI is used only to turn reference content (career and school descriptions) and search queries into numerical search data called embeddings. It generates no content and receives no student identifiers.
+                </p>
+                <p className="text-secondary leading-relaxed mb-4">
+                  <strong className="font-semibold">Training.</strong> Willow does not sell student data, does not use it for advertising, and does not use it to train AI models. Willow&apos;s AI providers operate under enterprise terms that prohibit training their models on Willow&apos;s data.
+                </p>
+                <p className="text-secondary leading-relaxed mb-4">
+                  <strong className="font-semibold">Safety.</strong> Every AI interaction is screened automatically, and content that raises a safety concern is routed to the School&apos;s designated staff for review. The AI assistant provides information and support only; it does not make or determine decisions affecting a student&apos;s academic or postsecondary record.
+                </p>
+                <p className="text-secondary leading-relaxed mb-4">
+                  <strong className="font-semibold">Data sharing.</strong> Willow shares student data only with the service providers listed below and in these school-directed ways: (a) Common App: once a school turns on its Common App integration, and only after a student links their Common App account and signs Common App&apos;s FERPA waiver, counselors, school administrators and the student&apos;s assigned teachers submit school reports, recommendations and related forms, which can include GPA, class rank, transcripts and letters, to the colleges on that student&apos;s Common App list; (b) counselors and school administrators can email a student&apos;s documents to a college&apos;s admissions address on file. Willow&apos;s only message to a parent or guardian is a request to sign an Early Decision agreement, sent only when the student asks.
+                </p>
+                <ul className="list-disc pl-6 mb-4 text-secondary leading-relaxed">
+                  {serviceProviders.map(({ provider, purpose }) => (
+                    <li key={provider} className="mb-1">
+                      <strong className="font-semibold">{provider}:</strong> {purpose}
+                    </li>
+                  ))}
+                </ul>
                 <p className="text-secondary leading-relaxed">
-                  Company encrypts student data in transit and at rest, stores and processes it within the United States, and will notify the School of a confirmed security incident affecting its student data within seventy-two (72) hours. On the School&apos;s written request or on termination, Company will delete or return student data within thirty (30) days, with backup copies purged within ninety (90) days. Company&apos;s current list of subprocessors, including AI providers, is published in its Privacy Policy. The School is responsible for obtaining any parental consent that applicable law requires before student data is collected.
+                  Company encrypts student data in transit and at rest, stores and processes it within the United States, and will notify the School of a confirmed security incident affecting its student data within seventy-two (72) hours. On the School&apos;s written request or on termination, Company will delete or return student data within thirty (30) days, with backup copies purged within ninety (90) days. Company&apos;s Privacy Policy describes these providers and practices in more detail. The School is responsible for obtaining any parental consent that applicable law requires before student data is collected.
                 </p>
               </div>
 
