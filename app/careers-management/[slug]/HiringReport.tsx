@@ -28,6 +28,45 @@ export interface ReportCandidate {
 // Rubric total per application id, then per interview section.
 type Totals = Record<string, Partial<Record<NotesSection, number>>>;
 
+type SortKey = "name" | "stage" | NotesSection;
+type SortDirection = "asc" | "desc";
+
+const stageRank = (stage: StageId) => (stage === "rejected" ? -1 : INTERVIEW_STAGES.indexOf(stage));
+const fullName = (a: ReportCandidate) => `${a.first_name} ${a.last_name}`;
+
+function SortableHeader({
+  label,
+  sortKey,
+  sort,
+  onSort,
+  align = "left",
+}: {
+  label: string;
+  sortKey: SortKey;
+  sort: { key: SortKey; direction: SortDirection };
+  onSort: (key: SortKey) => void;
+  align?: "left" | "right";
+}) {
+  const isActive = sort.key === sortKey;
+  return (
+    <th
+      aria-sort={isActive ? (sort.direction === "asc" ? "ascending" : "descending") : "none"}
+      className={cn("py-3 font-semibold text-heading", sortKey === "name" ? "pr-4" : "px-4", align === "right" && "text-right")}
+    >
+      <button
+        type="button"
+        onClick={() => onSort(sortKey)}
+        className={cn("inline-flex items-center gap-1 hover:underline", align === "right" && "flex-row-reverse")}
+      >
+        {label}
+        <span aria-hidden className={cn("text-xs", isActive ? "text-heading" : "text-gray-300")}>
+          {isActive && sort.direction === "asc" ? "▲" : "▼"}
+        </span>
+      </button>
+    </th>
+  );
+}
+
 function formatScore(score: number) {
   return score > 0 ? `+${score}` : String(score);
 }
@@ -41,6 +80,8 @@ export function HiringReport({
 }) {
   const [totals, setTotals] = useState<Totals | null>(null);
   const [error, setError] = useState(false);
+  // Stage starts furthest along first; scores start highest first; names start A to Z.
+  const [sort, setSort] = useState<{ key: SortKey; direction: SortDirection }>({ key: "stage", direction: "desc" });
   const applicationIds = applications.map((a) => a.id).join(",");
 
   useEffect(() => {
@@ -90,12 +131,25 @@ export function HiringReport({
       a.stage === "rejected" ? Object.keys(totals?.[a.id] ?? {}).length > 0 : INTERVIEW_STAGES.includes(a.stage)
     )
     .sort((a, b) => {
-      const rank = (stage: StageId) => (stage === "rejected" ? -1 : INTERVIEW_STAGES.indexOf(stage));
-      return (
-        rank(b.stage) - rank(a.stage) ||
-        `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`)
-      );
+      const flip = sort.direction === "asc" ? 1 : -1;
+      const byName = fullName(a).localeCompare(fullName(b));
+      if (sort.key === "name") return flip * byName;
+      if (sort.key === "stage") return flip * (stageRank(a.stage) - stageRank(b.stage)) || byName;
+      const scoreA = totals?.[a.id]?.[sort.key];
+      const scoreB = totals?.[b.id]?.[sort.key];
+      // Unscored candidates stay at the bottom in either direction.
+      if (scoreA === undefined || scoreB === undefined) {
+        return (scoreA === undefined ? 1 : 0) - (scoreB === undefined ? 1 : 0) || byName;
+      }
+      return flip * (scoreA - scoreB) || byName;
     });
+
+  const toggleSort = (key: SortKey) =>
+    setSort((prev) =>
+      prev.key === key
+        ? { key, direction: prev.direction === "asc" ? "desc" : "asc" }
+        : { key, direction: key === "name" ? "asc" : "desc" }
+    );
 
   if (candidates.length === 0) {
     return (
@@ -111,12 +165,17 @@ export function HiringReport({
       <table className="w-full max-w-5xl text-sm border-collapse">
         <thead>
           <tr className="border-b border-gray-200 text-left">
-            <th className="py-3 pr-4 font-semibold text-heading">Candidate</th>
-            <th className="py-3 px-4 font-semibold text-heading">Stage</th>
+            <SortableHeader label="Candidate" sortKey="name" sort={sort} onSort={toggleSort} />
+            <SortableHeader label="Stage" sortKey="stage" sort={sort} onSort={toggleSort} />
             {REPORT_SECTIONS.map((section) => (
-              <th key={section.id} className="py-3 px-4 font-semibold text-heading text-right">
-                {section.label}
-              </th>
+              <SortableHeader
+                key={section.id}
+                label={section.label}
+                sortKey={section.id}
+                sort={sort}
+                onSort={toggleSort}
+                align="right"
+              />
             ))}
           </tr>
         </thead>

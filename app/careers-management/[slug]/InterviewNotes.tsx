@@ -330,6 +330,10 @@ export function InterviewNotes({
     );
   }
 
+  const scores = Object.values(notes.ratings);
+  // Matches the Report tab: blank until at least one criterion is scored.
+  const rubricTotal = scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) : null;
+
   return (
     <div className="space-y-8">
       {scheduler}
@@ -338,7 +342,14 @@ export function InterviewNotes({
         {questionFields}
 
         <section className="2xl:sticky 2xl:top-0 space-y-8 rounded-lg border border-gray-200 p-5 md:p-6">
-          <h3 className="text-sm font-semibold text-heading uppercase tracking-wide">Rubric</h3>
+          <h3 className="flex items-baseline gap-3 text-sm font-semibold text-heading uppercase tracking-wide">
+            Rubric
+            {rubricTotal !== null && (
+              <span className={cn("normal-case tabular-nums", rubricTotal < 0 && "text-red-600")}>
+                Total {rubricTotal > 0 ? `+${rubricTotal}` : rubricTotal}
+              </span>
+            )}
+          </h3>
           {rubric.map((criterion) => {
             const labelId = `${section}-rubric-${criterion.id}`;
             const selected = notes.ratings[criterion.id];
