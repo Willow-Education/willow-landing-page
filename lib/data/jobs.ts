@@ -13,9 +13,9 @@
 //
 // `interviews` sets the questions shown in /careers-management for each
 // interview. Notes are saved against each question's `id`, so keep ids stable
-// when rewording a question. `phoneRubric` sets the criteria scored from -5 to
-// 5 on the phone interview tab; scores are saved against each criterion's `id`
-// the same way.
+// when rewording a question. `phoneRubric` and `videoRubric` set the criteria
+// scored from -5 to 5 on the phone and video interview tabs; scores are saved
+// against each criterion's `id` the same way.
 
 export interface JobSection {
   heading: string;
@@ -46,6 +46,7 @@ export interface JobInterviews {
   phone: InterviewQuestion[];
   phoneRubric: RubricCriterion[];
   video: InterviewQuestion[];
+  videoRubric: RubricCriterion[];
   final: InterviewQuestion[];
 }
 
@@ -221,7 +222,20 @@ export const JOBS: Job[] = [
         },
         { id: "timeline-salary", label: "Fit with timeline and salary" },
       ],
-      video: [],
+      video: [
+        { id: "background", question: "Background" },
+        { id: "product-approach", question: "Product approach" },
+        { id: "engineering", question: "Working with engineering" },
+        { id: "live-walkthrough", question: "Live walkthrough" },
+        { id: "ambiguity-freedom", question: "Comfort with ambiguity and freedom" },
+      ],
+      videoRubric: [
+        { id: "background", label: "Background" },
+        { id: "product-approach", label: "Product approach" },
+        { id: "engineering", label: "Working with engineering" },
+        { id: "live-walkthrough", label: "Live walkthrough" },
+        { id: "ambiguity-freedom", label: "Comfort with ambiguity and freedom" },
+      ],
       final: [],
     },
   },

@@ -254,7 +254,7 @@ function ApplicationDetail({
       <div
         className={cn(
           "px-5 md:px-10 py-8 md:py-10",
-          activeTab === "phone" ? "max-w-6xl" : activeTab !== "resume" && "max-w-3xl"
+          activeTab === "phone" || activeTab === "video" ? "max-w-6xl" : activeTab !== "resume" && "max-w-3xl"
         )}
       >
         {activeTab === "application" && (
@@ -307,7 +307,13 @@ function ApplicationDetail({
             applicationId={application.id}
             section={activeTab}
             questions={job.interviews[activeTab]}
-            rubric={activeTab === "phone" ? job.interviews.phoneRubric : undefined}
+            rubric={
+              activeTab === "phone"
+                ? job.interviews.phoneRubric
+                : activeTab === "video"
+                  ? job.interviews.videoRubric
+                  : undefined
+            }
             schedulable={activeTab === "phone"}
             onScheduledAtChange={activeTab === "phone" ? onPhoneScheduledAtChange : undefined}
           />
