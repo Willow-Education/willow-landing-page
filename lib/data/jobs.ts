@@ -13,7 +13,8 @@
 //
 // `interviews` sets the questions shown in /careers-management for each
 // interview. Notes are saved against each question's `id`, so keep ids stable
-// when rewording a question. `phoneRubric` and `videoRubric` set the criteria
+// when rewording a question. A question's optional `notes` show under it as
+// prompts for the interviewer. `phoneRubric` and `videoRubric` set the criteria
 // scored from -5 to 5 on the phone and video interview tabs; scores are saved
 // against each criterion's `id` the same way.
 
@@ -35,6 +36,7 @@ export interface JobApplication {
 export interface InterviewQuestion {
   id: string;
   question: string;
+  notes?: string[];
 }
 
 export interface RubricCriterion {
@@ -224,7 +226,14 @@ export const JOBS: Job[] = [
       ],
       video: [
         { id: "background", question: "Background" },
-        { id: "product-approach", question: "Product approach" },
+        {
+          id: "product-approach",
+          question: "Product approach",
+          notes: [
+            "How does their judgement come into play when code is free?",
+            "What stays the same about product management in the world of AI, and what changes?",
+          ],
+        },
         { id: "engineering", question: "Working with engineering" },
         { id: "live-walkthrough", question: "Live walkthrough" },
         { id: "ambiguity-freedom", question: "Comfort with ambiguity and freedom" },

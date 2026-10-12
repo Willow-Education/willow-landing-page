@@ -302,6 +302,13 @@ export function InterviewNotes({
           <label htmlFor={`${section}-${q.id}`} className="block text-sm font-semibold text-primary mb-2">
             {index + 1}. {q.question}
           </label>
+          {q.notes && q.notes.length > 0 && (
+            <ul className="list-disc pl-5 mb-3 space-y-1 text-sm text-secondary">
+              {q.notes.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          )}
           <textarea
             id={`${section}-${q.id}`}
             rows={4}
