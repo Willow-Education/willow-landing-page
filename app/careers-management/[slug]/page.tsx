@@ -32,6 +32,11 @@ const DETAIL_TABS = [
 
 type DetailTab = (typeof DETAIL_TABS)[number]["id"];
 
+// Interviews that get booked for a set day and time.
+const SCHEDULED_SECTIONS = ["phone", "video"] as const;
+type ScheduledSection = (typeof SCHEDULED_SECTIONS)[number];
+type Schedules = Record<ScheduledSection, Record<string, string | null>>;
+
 interface Application {
   id: string;
   first_name: string;
@@ -104,7 +109,7 @@ function LinkRow({ label, href }: { label: string; href: string }) {
   );
 }
 
-function PhoneScheduleBadge({ scheduledAt }: { scheduledAt: string | null }) {
+function ScheduleBadge({ scheduledAt }: { scheduledAt: string | null }) {
   return scheduledAt ? (
     <span className="shrink-0 text-xs font-semibold text-[#062F29]">{formatShortDate(scheduledAt)}</span>
   ) : (
@@ -169,7 +174,7 @@ function ApplicationDetail({
   isSaving,
   moveError,
   onMove,
-  onPhoneScheduledAtChange,
+  onScheduledAtChange,
 }: {
   job: Job;
   application: Application;
@@ -178,7 +183,7 @@ function ApplicationDetail({
   isSaving: boolean;
   moveError: string | null;
   onMove: (stage: StageId) => void;
-  onPhoneScheduledAtChange: (scheduledAt: string | null) => void;
+  onScheduledAtChange: (section: ScheduledSection, scheduledAt: string | null) => void;
 }) {
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const [resumeError, setResumeError] = useState(false);
@@ -314,8 +319,12 @@ function ApplicationDetail({
                   ? job.interviews.videoRubric
                   : undefined
             }
-            schedulable={activeTab === "phone"}
-            onScheduledAtChange={activeTab === "phone" ? onPhoneScheduledAtChange : undefined}
+            schedulable={activeTab === "phone" || activeTab === "video"}
+            onScheduledAtChange={
+              activeTab === "phone" || activeTab === "video"
+                ? (scheduledAt) => onScheduledAtChange(activeTab, scheduledAt)
+                : undefined
+            }
           />
         )}
 
@@ -339,8 +348,8 @@ export default function JobCandidatesPage() {
   const [moveError, setMoveError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<DetailTab>("application");
   const [showReport, setShowReport] = useState(false);
-  // Phone interview time per application id; null until loaded.
-  const [phoneSchedules, setPhoneSchedules] = useState<Record<string, string | null> | null>(null);
+  // Interview time per section, then per application id; null until loaded.
+  const [schedules, setSchedules] = useState<Schedules | null>(null);
 
   useEffect(() => {
     if (!supabase || !job) return;
@@ -369,22 +378,19 @@ export default function JobCandidatesPage() {
 
     supabase
       .from("interview_notes")
-      .select("application_id, scheduled_at:notes->>scheduledAt")
-      .eq("section", "phone")
+      .select("application_id, section, scheduled_at:notes->>scheduledAt")
+      .in("section", SCHEDULED_SECTIONS)
       .in("application_id", applicationIds.split(","))
       .then(({ data, error }) => {
         if (error) {
           console.error("Supabase error:", error);
           return;
         }
-        setPhoneSchedules(
-          Object.fromEntries(
-            (data as { application_id: string; scheduled_at: string | null }[]).map((row) => [
-              row.application_id,
-              row.scheduled_at,
-            ])
-          )
-        );
+        const next: Schedules = { phone: {}, video: {} };
+        for (const row of data as { application_id: string; section: ScheduledSection; scheduled_at: string | null }[]) {
+          next[row.section][row.application_id] = row.scheduled_at;
+        }
+        setSchedules(next);
       });
   }, [applicationIds]);
 
@@ -549,8 +555,8 @@ export default function JobCandidatesPage() {
                         <span className="text-sm font-semibold text-heading truncate">
                           {application.first_name} {application.last_name}
                         </span>
-                        {activeStage === "phone" && phoneSchedules !== null && (
-                          <PhoneScheduleBadge scheduledAt={phoneSchedules[application.id] ?? null} />
+                        {(activeStage === "phone" || activeStage === "video") && schedules !== null && (
+                          <ScheduleBadge scheduledAt={schedules[activeStage][application.id] ?? null} />
                         )}
                       </span>
                       <span className="block text-xs text-secondary mt-0.5">
@@ -578,8 +584,10 @@ export default function JobCandidatesPage() {
                   isSaving={isSaving}
                   moveError={moveError}
                   onMove={(stage) => moveCandidate(selected, stage)}
-                  onPhoneScheduledAtChange={(scheduledAt) =>
-                    setPhoneSchedules((prev) => ({ ...prev, [selected.id]: scheduledAt }))
+                  onScheduledAtChange={(section, scheduledAt) =>
+                    setSchedules((prev) =>
+                      prev && { ...prev, [section]: { ...prev[section], [selected.id]: scheduledAt } }
+                    )
                   }
                 />
               )}

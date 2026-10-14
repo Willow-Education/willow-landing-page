@@ -5,6 +5,7 @@ export const HIRING_STAGES = [
   { id: "screening", label: "Screening", dot: "bg-gray-400" },
   { id: "phone", label: "Phone", dot: "bg-sky-500" },
   { id: "video", label: "Video", dot: "bg-indigo-500" },
+  { id: "hold", label: "Hold", dot: "bg-stone-400" },
   { id: "work_sample", label: "Work Sample", dot: "bg-amber-500" },
   { id: "final", label: "Final", dot: "bg-purple-500" },
   { id: "hired", label: "Hired", dot: "bg-green-600" },
