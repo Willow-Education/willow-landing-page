@@ -337,7 +337,8 @@ export function InterviewNotes({
     );
   }
 
-  const scores = Object.values(notes.ratings);
+  // Scores for criteria since dropped from the rubric don't count.
+  const scores = rubric.map((criterion) => notes.ratings[criterion.id]).filter((score) => score !== undefined);
   // Matches the Report tab: blank until at least one criterion is scored.
   const rubricTotal = scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) : null;
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { HIRING_STAGES, getStage, type StageId } from "@/lib/data/hiring-stages";
 import { cn } from "@/lib/utils";
+import type { JobInterviews, RubricCriterion } from "@/lib/data/jobs";
 import type { NotesSection } from "./InterviewNotes";
 
 const REPORT_SECTIONS: { id: NotesSection; label: string }[] = [
@@ -73,9 +74,11 @@ function formatScore(score: number) {
 
 export function HiringReport({
   applications,
+  interviews,
   onSelect,
 }: {
   applications: ReportCandidate[];
+  interviews: JobInterviews;
   onSelect: (application: ReportCandidate) => void;
 }) {
   const [totals, setTotals] = useState<Totals | null>(null);
@@ -101,13 +104,21 @@ export function HiringReport({
           setError(true);
           return;
         }
+        // Only criteria still in a section's rubric count toward its total.
+        const rubrics: Partial<Record<NotesSection, RubricCriterion[]>> = {
+          phone: interviews.phoneRubric,
+          video: interviews.videoRubric,
+        };
         const next: Totals = {};
         for (const row of data as {
           application_id: string;
           section: NotesSection;
           ratings: Record<string, number> | null;
         }[]) {
-          const scores = Object.values(row.ratings ?? {});
+          const ratings = row.ratings ?? {};
+          const scores = (rubrics[row.section] ?? [])
+            .map((criterion) => ratings[criterion.id])
+            .filter((score) => score !== undefined);
           // Sections with notes but no scores stay blank rather than showing 0.
           if (scores.length === 0) continue;
           next[row.application_id] = {
@@ -117,7 +128,7 @@ export function HiringReport({
         }
         setTotals(next);
       });
-  }, [applicationIds]);
+  }, [applicationIds, interviews]);
 
   if (error) return <p className="px-5 md:px-8 py-6 text-sm text-red-600">Couldn&apos;t load the report.</p>;
   if (totals === null && applicationIds) {

@@ -16,7 +16,8 @@
 // when rewording a question. A question's optional `notes` show under it as
 // prompts for the interviewer. `phoneRubric` and `videoRubric` set the criteria
 // scored from -5 to 5 on the phone and video interview tabs; scores are saved
-// against each criterion's `id` the same way.
+// against each criterion's `id` the same way, and totals only count criteria
+// still in the rubric.
 
 export interface JobSection {
   heading: string;
@@ -225,25 +226,26 @@ export const JOBS: Job[] = [
         { id: "timeline-salary", label: "Fit with timeline and salary" },
       ],
       video: [
-        { id: "background", question: "Background" },
+        { id: "education-experience", question: "Education experience" },
         {
           id: "product-approach",
-          question: "Product approach",
+          question: "Product management",
           notes: [
             "How does their judgement come into play when code is free?",
             "What stays the same about product management in the world of AI, and what changes?",
           ],
         },
-        { id: "engineering", question: "Working with engineering" },
+        { id: "design", question: "Design" },
         { id: "live-walkthrough", question: "Live walkthrough" },
         { id: "ambiguity-freedom", question: "Comfort with ambiguity and freedom" },
       ],
       videoRubric: [
-        { id: "background", label: "Background" },
-        { id: "product-approach", label: "Product approach" },
-        { id: "engineering", label: "Working with engineering" },
+        { id: "education-experience", label: "Education experience" },
+        { id: "product-approach", label: "Product management" },
+        { id: "design", label: "Design" },
         { id: "live-walkthrough", label: "Live walkthrough" },
         { id: "ambiguity-freedom", label: "Comfort with ambiguity and freedom" },
+        { id: "vibe", label: "Vibe" },
       ],
       final: [],
     },

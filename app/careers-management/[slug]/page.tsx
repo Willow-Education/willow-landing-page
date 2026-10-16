@@ -523,6 +523,7 @@ export default function JobCandidatesPage() {
           {applications !== null && (
             <HiringReport
               applications={applications}
+              interviews={job.interviews}
               onSelect={(application) => {
                 selectStage(application.stage);
                 setSelectedId(application.id);
