@@ -4,6 +4,10 @@ import type { NextConfig } from "next";
 // exercised against a local copy.
 const workspaceOrigin = process.env.WORKSPACE_APP_ORIGIN ?? "https://one-goal-planning.vercel.app";
 
+// The College Advising Corps partnership workspace, a separate deployment of
+// the same app.
+const cacWorkspaceOrigin = process.env.CAC_WORKSPACE_APP_ORIGIN ?? "https://cac-partnership.vercel.app";
+
 // Common App sends students back to the base URL registered on Willow's partner
 // account, and that base is this marketing site, so both return legs arrive
 // here: `/student/common-app/callback?RequestId=…` after connecting, and
@@ -39,6 +43,14 @@ const nextConfig: NextConfig = {
       {
         source: "/one-goal-planning/:path*",
         destination: `${workspaceOrigin}/one-goal-planning/:path*`,
+      },
+      {
+        source: "/cac-partnership",
+        destination: `${cacWorkspaceOrigin}/cac-partnership`,
+      },
+      {
+        source: "/cac-partnership/:path*",
+        destination: `${cacWorkspaceOrigin}/cac-partnership/:path*`,
       },
     ];
   },
