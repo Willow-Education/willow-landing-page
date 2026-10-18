@@ -4,8 +4,32 @@ import type { NextConfig } from "next";
 // exercised against a local copy.
 const workspaceOrigin = process.env.WORKSPACE_APP_ORIGIN ?? "https://one-goal-planning.vercel.app";
 
+// Common App sends students back to the base URL registered on Willow's partner
+// account, and that base is this marketing site, so both return legs arrive
+// here: `/student/common-app/callback?RequestId=…` after connecting, and
+// `//student` (Next collapses the doubled slash) after the FERPA waiver.
+// Forward them to the Willow app's return bridge, which owns where the student
+// lands. Next passes the query string through. Remove these once Common App
+// re-registers the base as the bridge itself.
+const COMMON_APP_RETURN_BRIDGE =
+  "https://app.willowed.org/api/integrations/common-app";
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: "/student/common-app/callback",
+        destination: `${COMMON_APP_RETURN_BRIDGE}/student/common-app/callback`,
+        permanent: false,
+      },
+      {
+        source: "/student",
+        destination: `${COMMON_APP_RETURN_BRIDGE}/student`,
+        permanent: false,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {
