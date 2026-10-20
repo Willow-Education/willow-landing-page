@@ -78,7 +78,7 @@ export const JOBS: Job[] = [
     team: "Product",
     type: "Full-time",
     salary: "$80K – $130K",
-    open: true,
+    open: false,
     summary:
       "We're looking for a Product Manager with a design background who can own a problem from the first conversation with a user through a finished product experience.",
     sections: [

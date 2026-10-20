@@ -22,6 +22,19 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   async redirects() {
     return [
+      // No positions are open, so the public careers pages send visitors home.
+      // Remove these when a job is posted again; /careers-management is
+      // unaffected.
+      {
+        source: "/careers",
+        destination: "/",
+        permanent: false,
+      },
+      {
+        source: "/careers/:path*",
+        destination: "/",
+        permanent: false,
+      },
       {
         source: "/student/common-app/callback",
         destination: `${COMMON_APP_RETURN_BRIDGE}/student/common-app/callback`,
