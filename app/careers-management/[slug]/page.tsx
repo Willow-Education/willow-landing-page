@@ -36,6 +36,24 @@ type DetailTab = (typeof DETAIL_TABS)[number]["id"];
 const SCHEDULED_SECTIONS = ["phone", "video"] as const;
 type ScheduledSection = (typeof SCHEDULED_SECTIONS)[number];
 type Schedules = Record<ScheduledSection, Record<string, string | null>>;
+// Application ids with at least one rubric score, per interview.
+type CompletedInterviews = Record<ScheduledSection, Set<string>>;
+
+const REJECTED_FILTERS: { section: ScheduledSection; label: string }[] = [
+  { section: "phone", label: "Completed phone interview" },
+  { section: "video", label: "Completed video interview" },
+];
+
+// Who can send rejection emails. Must match the check constraint on
+// job_applications.rejection_email_sent_by.
+const EMAIL_SENDERS = ["Ryan", "Jessica"] as const;
+type EmailSender = (typeof EMAIL_SENDERS)[number];
+
+// The sender matching the signed-in staff member's email, if any.
+function senderForEmail(email: string | undefined): EmailSender | null {
+  const localPart = email?.split("@")[0].toLowerCase() ?? "";
+  return EMAIL_SENDERS.find((sender) => localPart.startsWith(sender.toLowerCase())) ?? null;
+}
 
 interface Application {
   id: string;
@@ -49,6 +67,8 @@ interface Application {
   stage: StageId;
   stage_changed_at: string;
   created_at: string;
+  rejection_email_sent_by: EmailSender | null;
+  rejection_email_sent_at: string | null;
 }
 
 function formatDate(value: string) {
@@ -117,6 +137,67 @@ function ScheduleBadge({ scheduledAt }: { scheduledAt: string | null }) {
   );
 }
 
+function RejectionEmail({
+  application,
+  defaultSender,
+  onChange,
+}: {
+  application: Application;
+  defaultSender: EmailSender;
+  onChange: (sentBy: EmailSender | null) => Promise<boolean>;
+}) {
+  const sentBy = application.rejection_email_sent_by;
+  // The sender shown while unchecked, used once the box is checked. Follows the
+  // signed-in staff member until someone picks a different name.
+  const [pickedSender, setPickedSender] = useState<EmailSender | null>(null);
+  const sender = pickedSender ?? defaultSender;
+  const [busy, setBusy] = useState(false);
+
+  const save = async (next: EmailSender | null) => {
+    setBusy(true);
+    await onChange(next);
+    setBusy(false);
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-3 mt-3 text-sm">
+      <label className="inline-flex items-center gap-2 font-semibold text-heading cursor-pointer">
+        <input
+          type="checkbox"
+          checked={sentBy !== null}
+          disabled={busy}
+          onChange={(e) => save(e.target.checked ? sender : null)}
+          className="w-4 h-4 accent-[#062F29]"
+        />
+        Rejection email sent
+      </label>
+      <label className="inline-flex items-center gap-2 text-secondary">
+        by
+        <select
+          aria-label="Rejection email sent by"
+          value={sentBy ?? sender}
+          disabled={busy}
+          onChange={(e) => {
+            const next = e.target.value as EmailSender;
+            setPickedSender(next);
+            if (sentBy !== null) save(next);
+          }}
+          className="h-9 pl-3 pr-8 border border-gray-300 rounded-lg text-sm font-semibold text-heading bg-white disabled:opacity-50"
+        >
+          {EMAIL_SENDERS.map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+      </label>
+      {application.rejection_email_sent_at && (
+        <span className="text-xs text-secondary">on {formatShortDate(application.rejection_email_sent_at)}</span>
+      )}
+    </div>
+  );
+}
+
 function StageActions({
   application,
   isSaving,
@@ -175,6 +256,8 @@ function ApplicationDetail({
   moveError,
   onMove,
   onScheduledAtChange,
+  defaultSender,
+  onRejectionEmailChange,
 }: {
   job: Job;
   application: Application;
@@ -184,6 +267,8 @@ function ApplicationDetail({
   moveError: string | null;
   onMove: (stage: StageId) => void;
   onScheduledAtChange: (section: ScheduledSection, scheduledAt: string | null) => void;
+  defaultSender: EmailSender;
+  onRejectionEmailChange: (sentBy: EmailSender | null) => Promise<boolean>;
 }) {
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const [resumeError, setResumeError] = useState(false);
@@ -234,6 +319,13 @@ function ApplicationDetail({
         <div>
           <StageActions application={application} isSaving={isSaving} onMove={onMove} />
           {moveError && <p className="text-sm text-red-600 mt-2">{moveError}</p>}
+          {application.stage === "rejected" && (
+            <RejectionEmail
+              application={application}
+              defaultSender={defaultSender}
+              onChange={onRejectionEmailChange}
+            />
+          )}
         </div>
       </header>
 
@@ -350,6 +442,14 @@ export default function JobCandidatesPage() {
   const [showReport, setShowReport] = useState(false);
   // Interview time per section, then per application id; null until loaded.
   const [schedules, setSchedules] = useState<Schedules | null>(null);
+  const [completedInterviews, setCompletedInterviews] = useState<CompletedInterviews | null>(null);
+  // Rejected-tab filters; a candidate must match every one that's on.
+  const [rejectedFilters, setRejectedFilters] = useState<ScheduledSection[]>([]);
+  const [signedInSender, setSignedInSender] = useState<EmailSender | null>(null);
+
+  useEffect(() => {
+    supabase?.auth.getSession().then(({ data }) => setSignedInSender(senderForEmail(data.session?.user.email)));
+  }, []);
 
   useEffect(() => {
     if (!supabase || !job) return;
@@ -357,7 +457,7 @@ export default function JobCandidatesPage() {
     supabase
       .from("job_applications")
       .select(
-        "id, first_name, last_name, email, portfolio_url, video_url, resume_path, answers, stage, stage_changed_at, created_at"
+        "id, first_name, last_name, email, portfolio_url, video_url, resume_path, answers, stage, stage_changed_at, created_at, rejection_email_sent_by, rejection_email_sent_at"
       )
       .eq("job_slug", job.slug)
       .order("created_at", { ascending: false })
@@ -378,7 +478,7 @@ export default function JobCandidatesPage() {
 
     supabase
       .from("interview_notes")
-      .select("application_id, section, scheduled_at:notes->>scheduledAt")
+      .select("application_id, section, scheduled_at:notes->>scheduledAt, ratings:notes->ratings")
       .in("section", SCHEDULED_SECTIONS)
       .in("application_id", applicationIds.split(","))
       .then(({ data, error }) => {
@@ -387,17 +487,31 @@ export default function JobCandidatesPage() {
           return;
         }
         const next: Schedules = { phone: {}, video: {} };
-        for (const row of data as { application_id: string; section: ScheduledSection; scheduled_at: string | null }[]) {
+        const completed: CompletedInterviews = { phone: new Set(), video: new Set() };
+        for (const row of data as {
+          application_id: string;
+          section: ScheduledSection;
+          scheduled_at: string | null;
+          ratings: Record<string, number> | null;
+        }[]) {
           next[row.section][row.application_id] = row.scheduled_at;
+          // An interview counts as completed once its rubric has a score.
+          if (Object.keys(row.ratings ?? {}).length > 0) completed[row.section].add(row.application_id);
         }
         setSchedules(next);
+        setCompletedInterviews(completed);
       });
   }, [applicationIds]);
 
   // Most recent applicants first.
   const stageApplications =
     applications
-      ?.filter((a) => a.stage === activeStage)
+      ?.filter(
+        (a) =>
+          a.stage === activeStage &&
+          (activeStage !== "rejected" ||
+            rejectedFilters.every((section) => completedInterviews?.[section].has(a.id)))
+      )
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) ?? [];
   const selected =
     stageApplications.find((a) => a.id === selectedId) ?? stageApplications[0] ?? null;
@@ -412,6 +526,36 @@ export default function JobCandidatesPage() {
   const selectCandidate = (id: string) => {
     setSelectedId(id);
     setMoveError(null);
+  };
+
+  const toggleRejectedFilter = (section: ScheduledSection) => {
+    setRejectedFilters((prev) =>
+      prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]
+    );
+    setSelectedId(null);
+  };
+
+  const setRejectionEmail = async (application: Application, sentBy: EmailSender | null) => {
+    if (!supabase || !applications) return false;
+    const sentAt = sentBy ? new Date().toISOString() : null;
+    const { data, error } = await supabase
+      .from("job_applications")
+      .update({ rejection_email_sent_by: sentBy, rejection_email_sent_at: sentAt })
+      .eq("id", application.id)
+      .select("id");
+
+    // An update blocked by row-level security returns no rows rather than an error.
+    if (error || !data?.length) {
+      console.error("Supabase error:", error);
+      setMoveError("Couldn't save the rejection email. Please try again.");
+      return false;
+    }
+    setApplications((prev) =>
+      prev?.map((a) =>
+        a.id === application.id ? { ...a, rejection_email_sent_by: sentBy, rejection_email_sent_at: sentAt } : a
+      ) ?? prev
+    );
+    return true;
   };
 
   const moveCandidate = async (application: Application, stage: StageId) => {
@@ -535,9 +679,33 @@ export default function JobCandidatesPage() {
         <div className="flex-1 min-h-0 flex flex-col md:flex-row">
           {/* Candidates in the active stage */}
           <aside className="md:w-80 shrink-0 border-b md:border-b-0 md:border-r border-gray-200 max-h-72 md:max-h-none overflow-y-auto">
+            {activeStage === "rejected" && (
+              <div className="px-5 py-3 border-b border-gray-100 flex flex-wrap gap-2">
+                {REJECTED_FILTERS.map(({ section, label }) => {
+                  const isOn = rejectedFilters.includes(section);
+                  return (
+                    <button
+                      key={section}
+                      aria-pressed={isOn}
+                      onClick={() => toggleRejectedFilter(section)}
+                      className={cn(
+                        "h-8 px-3 rounded-full border text-xs font-semibold transition-colors",
+                        isOn
+                          ? "bg-[#062F29] border-[#062F29] text-white"
+                          : "border-gray-300 text-secondary hover:border-[#062F29] hover:text-heading"
+                      )}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
             {applications !== null && stageApplications.length === 0 && (
               <p className="px-5 py-6 text-sm text-secondary">
-                No candidates in {getStage(activeStage).label}.
+                {activeStage === "rejected" && rejectedFilters.length > 0
+                  ? "No rejected candidates match these filters."
+                  : `No candidates in ${getStage(activeStage).label}.`}
               </p>
             )}
             <ul>
@@ -559,6 +727,12 @@ export default function JobCandidatesPage() {
                         {(activeStage === "phone" || activeStage === "video") && schedules !== null && (
                           <ScheduleBadge scheduledAt={schedules[activeStage][application.id] ?? null} />
                         )}
+                        {activeStage === "rejected" &&
+                          (application.rejection_email_sent_by ? (
+                            <span className="shrink-0 text-xs font-semibold text-[#062F29]">Emailed</span>
+                          ) : (
+                            <span className="shrink-0 text-xs font-semibold text-red-600">Not Emailed</span>
+                          ))}
                       </span>
                       <span className="block text-xs text-secondary mt-0.5">
                         Applied {formatDateTime(application.created_at)}
@@ -590,6 +764,8 @@ export default function JobCandidatesPage() {
                       prev && { ...prev, [section]: { ...prev[section], [selected.id]: scheduledAt } }
                     )
                   }
+                  defaultSender={signedInSender ?? EMAIL_SENDERS[0]}
+                  onRejectionEmailChange={(sentBy) => setRejectionEmail(selected, sentBy)}
                 />
               )}
             </main>
