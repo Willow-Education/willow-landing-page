@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { getJob } from "@/lib/data/jobs";
-import { jobApplicationSchema, validateResumeFile } from "@/lib/validations";
+import { getApplicationQuestions, getJob, isQuestionShown } from "@/lib/data/jobs";
+import { buildJobApplicationSchema, validateResumeFile } from "@/lib/validations";
 
 const RESUME_BUCKET = "resumes";
 
@@ -17,16 +17,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const questions = getApplicationQuestions(job.application);
     const answers: Record<string, string> = {};
-    for (const question of job.application.questions) {
+    for (const question of questions) {
       answers[question.id] = String(formData.get(`answers.${question.id}`) ?? "");
     }
 
-    const parsed = jobApplicationSchema.safeParse({
+    const parsed = buildJobApplicationSchema(job.application).safeParse({
       firstName: formData.get("firstName"),
       lastName: formData.get("lastName"),
       email: formData.get("email"),
-      portfolioUrl: formData.get("portfolioUrl"),
+      portfolioUrl: formData.get("portfolioUrl") ?? "",
       answers,
       videoUrl: formData.get("videoUrl"),
     });
@@ -78,10 +79,16 @@ export async function POST(request: NextRequest) {
       email: application.email.toLowerCase(),
       portfolio_url: application.portfolioUrl,
       resume_path: resumePath,
-      answers: job.application.questions.map((question) => ({
-        question: question.label,
-        answer: application.answers[question.id],
-      })),
+      // Saved with each question's label. Hidden follow-ups and unanswered
+      // optional questions are left out.
+      answers: questions
+        .filter((question) => isQuestionShown(question, application.answers))
+        .filter((question) => application.answers[question.id])
+        .map((question) => ({
+          question: question.label,
+          answer: application.answers[question.id],
+        })),
+      // Both columns are required, so links a job doesn't ask for are saved as "".
       video_url: application.videoUrl,
       created_at: new Date().toISOString(),
     });

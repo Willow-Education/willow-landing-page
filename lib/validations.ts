@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getApplicationQuestions, isQuestionShown, type JobApplication } from "@/lib/data/jobs";
 
 export const proposalFormSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -34,18 +35,62 @@ const linkField = (message: string) =>
     .transform((value) => (/^https?:\/\//i.test(value) ? value : `https://${value}`))
     .pipe(z.string().url(message));
 
-export const jobApplicationSchema = z.object({
-  firstName: z.string().trim().min(1, "First name is required").max(100),
-  lastName: z.string().trim().min(1, "Last name is required").max(100),
-  email: z.string().trim().email("Please enter a valid email address"),
-  portfolioUrl: linkField("Please enter a valid link"),
-  answers: z.record(
-    z.string().trim().min(1, "Please answer this question").max(5000, "Please keep your answer under 5,000 characters")
-  ),
-  videoUrl: linkField("Please enter a valid video link"),
-});
+// Same as linkField, but an empty value is allowed and stays "".
+const optionalLinkField = (message: string) =>
+  z
+    .string()
+    .trim()
+    .transform((value) => (value === "" || /^https?:\/\//i.test(value) ? value : `https://${value}`))
+    .pipe(z.union([z.literal(""), z.string().url(message)]));
 
-export type JobApplicationData = z.infer<typeof jobApplicationSchema>;
+const ANSWER_MAX_LENGTH = 5000;
+
+// Validates an application for one job. Questions hidden by `showIf` are
+// skipped, so a follow-up is only required once the answer that reveals it is
+// chosen. Fields the job doesn't ask for come out as "".
+export function buildJobApplicationSchema(application: JobApplication) {
+  const questions = getApplicationQuestions(application);
+  const portfolioMessage = "Please enter a valid link";
+  const videoMessage = "Please enter a valid video link";
+
+  return z.object({
+    firstName: z.string().trim().min(1, "First name is required").max(100),
+    lastName: z.string().trim().min(1, "Last name is required").max(100),
+    email: z.string().trim().email("Please enter a valid email address"),
+    portfolioUrl: application.portfolio.required
+      ? linkField(portfolioMessage)
+      : optionalLinkField(portfolioMessage),
+    videoUrl: application.video ? linkField(videoMessage) : z.unknown().transform(() => ""),
+    answers: z
+      .record(z.string().nullish())
+      .default({})
+      .transform((raw) => {
+        const answers: Record<string, string> = {};
+        for (const [id, value] of Object.entries(raw)) answers[id] = (value ?? "").trim();
+        return answers;
+      })
+      .superRefine((answers, ctx) => {
+        for (const question of questions) {
+          if (!isQuestionShown(question, answers)) continue;
+          const answer = answers[question.id] ?? "";
+          const issue = (message: string) =>
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: [question.id], message });
+
+          if (!answer) {
+            if (question.required) {
+              issue(question.kind === "choice" ? "Please choose an answer" : "Please answer this question");
+            }
+          } else if (question.kind === "choice" && !question.options.includes(answer)) {
+            issue("Please choose one of the options");
+          } else if (answer.length > ANSWER_MAX_LENGTH) {
+            issue("Please keep your answer under 5,000 characters");
+          }
+        }
+      }),
+  });
+}
+
+export type JobApplicationData = z.infer<ReturnType<typeof buildJobApplicationSchema>>;
 
 // Kept under Vercel's 4.5MB request body limit for serverless functions.
 export const RESUME_MAX_BYTES = 4 * 1024 * 1024;

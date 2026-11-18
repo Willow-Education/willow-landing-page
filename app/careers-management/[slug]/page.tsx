@@ -113,7 +113,9 @@ function Avatar({ application, size }: { application: Application; size: "sm" | 
   );
 }
 
+// Some jobs don't ask for every link, and those are saved as "".
 function LinkRow({ label, href }: { label: string; href: string }) {
+  if (!href) return null;
   return (
     <div>
       <h3 className="text-sm font-semibold text-primary mb-1">{label}</h3>
@@ -356,7 +358,7 @@ function ApplicationDetail({
       >
         {activeTab === "application" && (
           <div className="space-y-8">
-            <LinkRow label="Portfolio or prototype" href={application.portfolio_url} />
+            <LinkRow label="Portfolio" href={application.portfolio_url} />
             <LinkRow label="Video" href={application.video_url} />
             {application.answers.map(({ question, answer }) => (
               <div key={question}>

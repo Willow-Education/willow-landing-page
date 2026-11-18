@@ -1,22 +1,35 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { useForm, type UseFormRegister } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CheckCircle, FileText, UploadSimple } from "phosphor-react";
-import { jobApplicationSchema, validateResumeFile } from "@/lib/validations";
+import { buildJobApplicationSchema, validateResumeFile } from "@/lib/validations";
 import { cn } from "@/lib/utils";
-import type { JobApplication } from "@/lib/data/jobs";
+import {
+  getApplicationQuestions,
+  isQuestionShown,
+  type ApplicationQuestion,
+  type JobApplication,
+} from "@/lib/data/jobs";
 
-const formSchema = jobApplicationSchema.extend({
-  resume: z.custom<FileList>().superRefine((files, ctx) => {
-    const message = validateResumeFile(files?.[0]);
-    if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
-  }),
-});
+function buildFormSchema(application: JobApplication) {
+  return buildJobApplicationSchema(application).extend({
+    resume: z.custom<FileList>().superRefine((files, ctx) => {
+      const message = validateResumeFile(files?.[0]);
+      if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+    }),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormSchema = ReturnType<typeof buildFormSchema>;
+type FormInput = z.input<FormSchema>;
+type FormValues = z.output<FormSchema>;
+
+function countWords(text: string | null | undefined) {
+  return text?.trim() ? text.trim().split(/\s+/).length : 0;
+}
 
 const inputClass =
   "w-full h-12 px-4 border rounded-lg focus:ring-2 focus:ring-[#062F29] focus:border-transparent transition-colors text-base";
@@ -53,6 +66,82 @@ function Step({
   );
 }
 
+function QuestionField({
+  question,
+  register,
+  answer,
+  error,
+}: {
+  question: ApplicationQuestion;
+  register: UseFormRegister<FormInput>;
+  answer: string | null | undefined;
+  error?: string;
+}) {
+  const id = `answers-${question.id}`;
+  const label = `${question.label}${question.required ? " *" : ""}`;
+  const hints = question.hints?.map((hint) => (
+    <p key={hint} className={hintClass}>
+      {hint}
+    </p>
+  ));
+
+  if (question.kind === "choice") {
+    return (
+      <fieldset>
+        <legend className={labelClass}>{label}</legend>
+        {hints}
+        <div className="space-y-2">
+          {question.options.map((option) => (
+            <label
+              key={option}
+              className={cn(
+                "flex items-start gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors text-base text-primary",
+                answer === option
+                  ? "border-[#062F29] bg-[#ACF7B2]/25"
+                  : error
+                    ? "border-red-400 hover:bg-gray-50"
+                    : "border-gray-300 hover:bg-gray-50",
+              )}
+            >
+              <input
+                {...register(`answers.${question.id}`)}
+                type="radio"
+                value={option}
+                className="mt-1 h-4 w-4 shrink-0 accent-[#062F29]"
+              />
+              <span>{option}</span>
+            </label>
+          ))}
+        </div>
+        <FieldError message={error} />
+      </fieldset>
+    );
+  }
+
+  const words = countWords(answer);
+  return (
+    <div>
+      <label htmlFor={id} className={labelClass}>
+        {label}
+      </label>
+      {hints}
+      <textarea
+        {...register(`answers.${question.id}`)}
+        id={id}
+        rows={question.rows ?? 6}
+        className={cn(textareaClass, error ? "border-red-400" : "border-gray-300")}
+      />
+      {question.words && (
+        <p className="mt-1.5 text-sm text-secondary">
+          Aim for {question.words.min}–{question.words.max} words
+          {words > 0 && ` · ${words} ${words === 1 ? "word" : "words"}`}
+        </p>
+      )}
+      <FieldError message={error} />
+    </div>
+  );
+}
+
 export function ApplicationForm({
   jobSlug,
   jobTitle,
@@ -66,18 +155,23 @@ export function ApplicationForm({
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const formSchema = useMemo(() => buildFormSchema(application), [application]);
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<FormValues>({
+  } = useForm<FormInput>({
     resolver: zodResolver(formSchema),
   });
 
   const resumeName = watch("resume")?.[0]?.name;
+  const answers = watch("answers") ?? {};
 
-  const onSubmit = async (data: FormValues) => {
+  // The installed resolver types submitted values as the form's input, but
+  // they are the schema's parsed output (trimmed answers, normalized links).
+  const onSubmit = async (input: FormInput) => {
+    const data = input as unknown as FormValues;
     setIsSubmitting(true);
     setError(null);
 
@@ -87,8 +181,10 @@ export function ApplicationForm({
     body.append("lastName", data.lastName);
     body.append("email", data.email);
     body.append("portfolioUrl", data.portfolioUrl);
-    for (const question of application.questions) {
-      body.append(`answers.${question.id}`, data.answers[question.id] ?? "");
+    for (const question of getApplicationQuestions(application)) {
+      if (isQuestionShown(question, data.answers)) {
+        body.append(`answers.${question.id}`, data.answers[question.id] ?? "");
+      }
     }
     body.append("videoUrl", data.videoUrl);
     body.append("resume", data.resume[0]);
@@ -171,28 +267,9 @@ export function ApplicationForm({
           />
           <FieldError message={errors.email?.message} />
         </div>
-      </Step>
-
-      <Step number={2} title="Your work">
-        <div>
-          <label htmlFor="portfolioUrl" className={labelClass}>
-            Portfolio or prototype link *
-          </label>
-          <p className={hintClass}>
-            A link to your portfolio or to something you&apos;ve designed or built.
-          </p>
-          <input
-            {...register("portfolioUrl")}
-            type="url"
-            id="portfolioUrl"
-            placeholder="https://"
-            className={cn(inputClass, errors.portfolioUrl ? "border-red-400" : "border-gray-300")}
-          />
-          <FieldError message={errors.portfolioUrl?.message} />
-        </div>
-
         <div>
           <p className={labelClass}>Resume *</p>
+          <p className={hintClass}>Upload a PDF or Word document (maximum 4 MB).</p>
           <input
             {...register("resume")}
             type="file"
@@ -231,53 +308,64 @@ export function ApplicationForm({
           </label>
           <FieldError message={errors.resume?.message as string | undefined} />
         </div>
-      </Step>
-
-      <Step number={3} title="A few questions">
-        {application.questions.map((question) => {
-          const id = `answers-${question.id}`;
-          return (
-            <div key={question.id}>
-              <label htmlFor={id} className={labelClass}>
-                {question.label} *
-              </label>
-              <textarea
-                {...register(`answers.${question.id}`)}
-                id={id}
-                rows={6}
-                className={cn(
-                  textareaClass,
-                  errors.answers?.[question.id] ? "border-red-400" : "border-gray-300",
-                )}
-              />
-              <FieldError message={errors.answers?.[question.id]?.message} />
-            </div>
-          );
-        })}
-      </Step>
-
-      <Step number={4} title="A short video">
         <div>
-          <label htmlFor="videoUrl" className={labelClass}>
-            Video link *
+          <label htmlFor="portfolioUrl" className={labelClass}>
+            {application.portfolio.label}
+            {application.portfolio.required && " *"}
           </label>
-          <p className={hintClass}>{application.videoPrompt}</p>
-          <p className={hintClass}>
-            Share a link from Loom, Komodo, YouTube, or anywhere else we can watch it.{" "}
-            <strong className="font-semibold text-primary">
-              Please check your sharing settings so anyone with the link can view it.
-            </strong>
-          </p>
+          <p className={hintClass}>{application.portfolio.hint}</p>
           <input
-            {...register("videoUrl")}
+            {...register("portfolioUrl")}
             type="url"
-            id="videoUrl"
+            id="portfolioUrl"
             placeholder="https://"
-            className={cn(inputClass, errors.videoUrl ? "border-red-400" : "border-gray-300")}
+            className={cn(inputClass, errors.portfolioUrl ? "border-red-400" : "border-gray-300")}
           />
-          <FieldError message={errors.videoUrl?.message} />
+          <FieldError message={errors.portfolioUrl?.message} />
         </div>
+
       </Step>
+
+      {application.steps.map((step, i) => (
+        <Step key={step.title} number={i + 2} title={step.title}>
+          {step.questions
+            .filter((question) => isQuestionShown(question, answers))
+            .map((question) => (
+              <QuestionField
+                key={question.id}
+                question={question}
+                register={register}
+                answer={answers[question.id]}
+                error={errors.answers?.[question.id]?.message}
+              />
+            ))}
+        </Step>
+      ))}
+
+      {application.video && (
+        <Step number={application.steps.length + 2} title="A short video">
+          <div>
+            <label htmlFor="videoUrl" className={labelClass}>
+              Video link *
+            </label>
+            <p className={hintClass}>{application.video.prompt}</p>
+            <p className={hintClass}>
+              Share a link from Loom, Komodo, YouTube, or anywhere else we can watch it.{" "}
+              <strong className="font-semibold text-primary">
+                Please check your sharing settings so anyone with the link can view it.
+              </strong>
+            </p>
+            <input
+              {...register("videoUrl")}
+              type="url"
+              id="videoUrl"
+              placeholder="https://"
+              className={cn(inputClass, errors.videoUrl ? "border-red-400" : "border-gray-300")}
+            />
+            <FieldError message={errors.videoUrl?.message} />
+          </div>
+        </Step>
+      )}
 
       {error && (
         <p className="text-sm text-red-600" role="alert">

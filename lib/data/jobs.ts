@@ -4,12 +4,19 @@
 // gets its own page at /careers/<slug>. To take a job down, delete its entry
 // (or set `open: false` to hide it while keeping the copy around).
 //
-// Each section's `blocks` render in order: a string is a paragraph, and an
-// array of strings is a bulleted list.
+// Each section's `blocks` render in order: a string is a paragraph, an array is
+// a bulleted list, and `{ subheading }` is a small heading inside the section.
+// A list item is a string, or `{ lead, text }` to start the item with a bold
+// phrase. A section without a heading continues straight on from the hero.
 //
-// Every application asks for name, email, a portfolio link, a resume, and a
-// video link. `application` sets the job-specific open-response questions and
-// what the video should cover.
+// Every application asks for name, email, a resume, and a portfolio link
+// (`application.portfolio` sets its wording and whether it's required).
+// `application.steps` sets the job-specific questions, grouped into numbered
+// steps after "About you". A question is free text or a single choice, and
+// `showIf` shows it only after another question gets one of the listed
+// answers. Answers are saved with each question's label, so rewording a
+// question doesn't change answers already submitted. Add `application.video`
+// to also ask for a video link.
 //
 // `interviews` sets the questions shown in /careers-management for each
 // interview. Notes are saved against each question's `id`, so keep ids stable
@@ -19,19 +26,48 @@
 // against each criterion's `id` the same way, and totals only count criteria
 // still in the rubric.
 
+export type JobListItem = string | { lead: string; text: string };
+
+export type JobBlock = string | JobListItem[] | { subheading: string };
+
 export interface JobSection {
-  heading: string;
-  blocks: (string | string[])[];
+  heading?: string;
+  blocks: JobBlock[];
 }
 
-export interface ApplicationQuestion {
+interface ApplicationQuestionBase {
   id: string;
   label: string;
+  // Lines of guidance shown under the label.
+  hints?: string[];
+  required: boolean;
+  // Show this question only when another question's answer is one of `answers`.
+  showIf?: { questionId: string; answers: string[] };
+}
+
+export interface TextQuestion extends ApplicationQuestionBase {
+  kind: "text";
+  rows?: number;
+  // Suggested length, shown as a live word count. Not enforced.
+  words?: { min: number; max: number };
+}
+
+export interface ChoiceQuestion extends ApplicationQuestionBase {
+  kind: "choice";
+  options: string[];
+}
+
+export type ApplicationQuestion = TextQuestion | ChoiceQuestion;
+
+export interface ApplicationStep {
+  title: string;
+  questions: ApplicationQuestion[];
 }
 
 export interface JobApplication {
-  questions: ApplicationQuestion[];
-  videoPrompt: string;
+  portfolio: { label: string; hint: string; required: boolean };
+  steps: ApplicationStep[];
+  video?: { prompt: string };
 }
 
 export interface InterviewQuestion {
@@ -62,7 +98,7 @@ export interface Job {
   // Short salary range shown in the job page's summary, e.g. "$80K – $130K".
   salary?: string;
   open: boolean;
-  // Used for the page's search/share description.
+  // Shown under the title and used for the page's search/share description.
   summary: string;
   sections: JobSection[];
   application: JobApplication;
@@ -71,134 +107,294 @@ export interface Job {
 
 export const CAREERS_EMAIL = "careers@willowed.org";
 
+// True when a question should be shown (and answered) given the other answers.
+export function isQuestionShown(
+  question: ApplicationQuestion,
+  answers: Record<string, string | null | undefined>,
+) {
+  return !question.showIf || question.showIf.answers.includes(answers[question.showIf.questionId] ?? "");
+}
+
+export function getApplicationQuestions(application: JobApplication): ApplicationQuestion[] {
+  return application.steps.flatMap((step) => step.questions);
+}
+
+const PUBLIC_SCHOOL_YES = [
+  "Yes, as a teacher, counselor, administrator, or other school employee",
+  "Yes, working directly with a public school in another capacity",
+];
+
 export const JOBS: Job[] = [
   {
     slug: "product-manager",
     title: "Product Manager",
     team: "Product",
+    location: "Remote (work from anywhere)",
     type: "Full-time",
-    salary: "$80K – $130K",
+    salary: "$80K – $130K + equity",
     open: true,
     summary:
-      "We're looking for a Product Manager with a design background who can own a problem from the first conversation with a user through a finished product experience.",
+      "We're looking for an exceptional Product Manager who can figure out which problems are worth solving and lead the work of turning those problems into products people love using.",
     sections: [
+      {
+        blocks: [
+          "You'll work directly with our Chief Product and Technology Officer, have substantial ownership over product decisions, and help shape a platform used by students and educators to make some of the most important decisions of their lives.",
+          "We're especially interested in people who combine strong product judgment, curiosity about users, and the ability to turn complicated problems into simple, effective experiences.",
+        ],
+      },
       {
         heading: "About Willow",
         blocks: [
-          "Willow Education is building the career and postsecondary readiness platform that helps schools and CBOs drive economic mobility. We combine quality coherent curriculum, AI-powered guidance, career exploration, labor market data, and data on hundreds of thousands of college and professional programs to help students understand who they are, discover what is possible, and make better decisions about what comes after high school.",
-          "Willow currently has four full-time team members: our CEO, Chief Product and Technology Officer, Chief Academic Officer, and this role, alongside a small number of part-time and contract contributors. You will make up the product team alongside our CPTO and work closely with our CAO, who leads curriculum and customer success. There are very few layers between understanding a problem, making a decision, and building something better.",
+          "Willow Education is building the career and postsecondary readiness platform that helps schools and community-based organizations drive economic mobility.",
+          "We combine curriculum, AI-powered guidance, career exploration, labor market data, and information on hundreds of thousands of college and professional programs to help students understand who they are, discover what's possible, and make better decisions about what comes after high school.",
+          "We're a small, growing company with an ambitious mission. Our full-time team consists of our CEO, Chief Product and Technology Officer, Chief Academic Officer, and this role, supported by a handful of part-time and contract contributors.",
+          "You'll work closely with the CPTO on product strategy, discovery, and execution, and with our CAO, who leads curriculum and customer success. You'll have direct access to the people who use Willow and meaningful influence over the direction of the product.",
+          "There are very few layers between discovering a problem, making a decision, and building something better.",
         ],
       },
       {
         heading: "The role",
         blocks: [
-          "We're looking for a Product Manager with a design background who can own a problem from the first conversation with a user through a finished product experience.",
-          "The core of the job is understanding users, identifying the right problems to solve, developing and testing solutions, and designing the experience that gets built.",
-          "This is not a traditional PM role where you write requirements and hand them to a designer. You will be responsible for the design work yourself and have full responsibility for the overall UI/UX and aesthetic quality of Willow.",
+          "Your most important responsibility is making sure we're building the right things, for the right reasons, in the right way.",
+          "That starts with understanding people. You'll spend time talking with students, educators, counselors, and school leaders to understand their goals, challenges, behaviors, and needs.",
+          "You'll combine what you learn with Willow's larger goals to identify opportunities, evaluate tradeoffs, decide what matters most, and develop solutions that create measurable value.",
+          "You'll own the process from discovery through launch and iteration. That includes defining problems, exploring possible solutions, testing assumptions, designing experiences, working with engineering, and learning from what happens after something ships.",
+          "This isn't a role where leadership hands you a list of features to build. We expect you to help us figure out what belongs on that list in the first place.",
         ],
       },
       {
         heading: "What you'll do",
         blocks: [
           [
-            "Conduct research with students, educators, counselors, and school leaders.",
-            "Identify opportunities to improve existing experiences and build new ones.",
-            "Turn ambiguous problems into clear product solutions.",
-            "Explore, prototype, and test multiple approaches with real users.",
-            "Design polished, production-ready product experiences.",
-            "Make decisions about workflows, interaction patterns, information architecture, hierarchy, and usability.",
-            "Run product-based experiments to identify opportunities and strengthen outcomes.",
-            "Work closely with engineering from early exploration through implementation.",
-            "Maintain and improve the consistency, usability, and visual quality of Willow across the product.",
+            {
+              lead: "Understand our users.",
+              text: "Conduct interviews, observe workflows, analyze feedback and product usage, and develop a deep understanding of the people we're building for.",
+            },
+            {
+              lead: "Identify the right problems.",
+              text: "Translate company goals, customer needs, and research findings into clear opportunities for the product.",
+            },
+            {
+              lead: "Make thoughtful product decisions.",
+              text: "Evaluate potential solutions, prioritize what matters, navigate tradeoffs, and make good decisions even when information is incomplete.",
+            },
+            {
+              lead: "Design and test solutions.",
+              text: "Develop user flows, prototypes, and product experiences. Test ideas early, learn quickly, and improve them before and after launch.",
+            },
+            {
+              lead: "Own outcomes, not just deliverables.",
+              text: "Work with engineering to ship solutions, understand whether they actually solved the problem, and keep improving them.",
+            },
+            {
+              lead: "Shape the product experience.",
+              text: "Help make Willow simpler, more intuitive, more coherent, and more useful across the platform.",
+            },
           ],
-        ],
-      },
-      {
-        heading: "AI-first means building",
-        blocks: [
-          "AI is core to how we work at Willow.",
-          "You will be expected to use AI every day to research problems, explore ideas, analyze feedback, design solutions, and build coded prototypes.",
-          "We believe product ideas should be experienced, not just described in documents or static mockups. You should be comfortable using modern AI development tools to turn ideas into working prototypes that users and teammates can interact with.",
-          "You do not need to be a software engineer, but working and coding with AI is a requirement for this role.",
-        ],
-      },
-      {
-        heading: "This is a startup",
-        blocks: [
-          "You will have a lot of autonomy here. You will also have a lot of responsibility.",
-          "We care far more about the quality and impact of your work than whether you were online for a particular number of hours. This is not a clock-in, clock-out role where completing assigned tasks means the work is done.",
-          "If you own something, you own the outcome, and usually the process to drive it.",
-          "We expect you to notice when something is not good enough, figure out why, and keep working the problem until it is. In return, you will have substantial freedom to make decisions, challenge assumptions, and shape the product.",
         ],
       },
       {
         heading: "What we're looking for",
         blocks: [
-          "You are exceptional at:",
+          "Above everything else, we're looking for excellent product judgment.",
+          "We care much more about how you think, what you've accomplished, and the quality of your decisions than your job titles or years of experience.",
+          "The strongest candidates will demonstrate an ability to:",
           [
-            "User research and customer discovery",
-            "Product thinking and problem definition",
-            "UX and interaction design",
-            "Prototyping and usability testing",
-            "Turning complex workflows into simple experiences",
-            "Creating polished product interfaces",
-            "Making good product decisions with incomplete information",
-            "Working directly with engineers",
-            "Taking a product from an ambiguous problem through a shipped solution",
+            {
+              lead: "Understand users deeply.",
+              text: "You know how to conduct meaningful research, ask good questions, uncover underlying needs, and distinguish what users ask for from what they actually need.",
+            },
+            {
+              lead: "Find valuable problems to solve.",
+              text: "You can connect company objectives with customer needs and recognize where solving a problem will make a meaningful difference.",
+            },
+            {
+              lead: "Turn ambiguity into direction.",
+              text: "You can take a broad goal or messy problem, explore the possibilities, identify tradeoffs, and develop a clear plan of action.",
+            },
+            {
+              lead: "Think critically about products.",
+              text: "You can look at an existing experience, recognize what's working and what isn't, and develop thoughtful hypotheses about how to improve it.",
+            },
+            {
+              lead: "Create and evaluate solutions.",
+              text: "You're comfortable prototyping ideas, testing them with users, and changing direction based on what you learn.",
+            },
+            {
+              lead: "Take ownership.",
+              text: "You can independently move a product from an identified problem to a shipped solution, working effectively with engineers and other collaborators along the way.",
+            },
           ],
-          "We are not looking for a PM who creates rough concepts and expects a designer to take over. You should have a strong design eye and be comfortable owning the quality of the experience yourself.",
-          "You should also be comfortable setting your own direction, making big decisions without waiting for permission, and operating in an environment where priorities and plans will change. If you need highly predictable work, tightly defined responsibilities, or daily direction from a manager, this is probably not the right role.",
+          "We're not looking for someone who simply organizes a backlog, writes requirements, and keeps projects moving. Those skills can be useful, but the real value of this role is figuring out what we should build, why it matters, and how to make it genuinely useful.",
         ],
       },
       {
-        heading: "Experience with schools is a major plus",
+        heading: "Experience we'd especially value",
         blocks: [
-          "Experience working in or closely with schools is a significant advantage.",
-          "Students, educators, counselors, administrators, districts, and families all operate under different constraints, and many of those constraints are difficult to understand from the outside.",
-          "We are especially interested in candidates who have worked as educators, counselors, school leaders, education researchers, edtech product builders, or in other roles that involved meaningful time inside schools.",
+          { subheading: "U.S. public school experience" },
+          "Understanding how schools actually operate is a major advantage. We're particularly interested in people who have worked directly in U.S. public schools, including teachers, counselors, administrators, and school leaders.",
+          "Schools are complicated environments, and knowing how educators and students experience those environments can make you a much better product manager at Willow.",
+          { subheading: "Education technology experience" },
+          "We'd also love to meet candidates who have built products at education-focused technology companies or worked closely with schools and educators through technology.",
+          "Experience in education isn't required, but a genuine interest in our mission and willingness to learn about the people we serve are essential.",
+          { subheading: "Product and UX design experience" },
+          "Strong design skills are another significant advantage. We value people who understand user experience, information architecture, interaction design, and how to make complicated workflows feel simple.",
+          "Because we're a small team, you'll contribute directly to designing and prototyping the experiences you lead. You don't need to be an exceptional visual designer, but you should have strong instincts for usability, care about the quality of the finished experience, and be comfortable turning ideas into tangible designs.",
         ],
       },
       {
-        heading: "You'll probably thrive here if",
+        heading: "How we work: AI-first",
+        blocks: [
+          "AI is fundamental to how we work at Willow.",
+          "We use AI to accelerate research, analyze information, explore ideas, design solutions, and build software. We believe this allows a small team of talented people to accomplish things that previously required much larger teams.",
+          "You'll be expected to use AI tools regularly and develop working, interactive prototypes with AI-assisted coding tools.",
+          "You don't need to be a software engineer. You do need to be willing and able to use modern AI tools to turn your ideas into experiences people can actually interact with.",
+          "We care about the quality of your thinking and what you accomplish, not whether you personally wrote every line of code.",
+        ],
+      },
+      {
+        heading: "What it's like to work here",
+        blocks: [
+          "You'll have a lot of autonomy, along with real responsibility for the results of your work.",
+          "We believe talented people do their best work when they understand the goals, have access to the information they need, and have the freedom to figure out how to get there.",
+          "You'll be encouraged to challenge assumptions, propose new directions, experiment, and make important decisions. We won't measure your contribution by hours online, meetings attended, or tickets completed.",
+          "We will care deeply about the quality of your decisions, the experiences you create, and whether your work actually improves outcomes for our users.",
+          "Priorities will evolve. You'll sometimes work with incomplete information. And because our team is small, you'll have opportunities to influence decisions well beyond a narrowly defined job description.",
+          "If you love solving meaningful problems, taking ownership, and seeing the direct impact of your work, we think you'll enjoy working here.",
+        ],
+      },
+      {
+        heading: "Compensation and benefits",
         blocks: [
           [
-            "You like talking directly to users.",
-            "You are comfortable starting with a messy problem rather than a detailed specification.",
-            "You want ownership of both what gets built and how it works.",
-            "You have strong product and design opinions but change your mind when the evidence says you should.",
-            "You care deeply about quality.",
-            "You are comfortable moving quickly in ambiguity without layers of approval.",
-            "You want your work to visibly shape the direction of an entire product.",
+            {
+              lead: "Salary:",
+              text: "$80,000–$130,000, based on the scope of the role and the capabilities you bring.",
+            },
+            {
+              lead: "Equity:",
+              text: "Meaningful equity in a growing, mission-driven public benefit corporation.",
+            },
+            { lead: "Benefits:", text: "Benefits package provided." },
+            { lead: "Location:", text: "Fully remote. Work from anywhere." },
+            { lead: "Employment:", text: "Full-time." },
           ],
         ],
       },
       {
-        heading: "Compensation",
+        heading: "How to apply",
         blocks: [
-          "Salary range: $80,000 - $130,000, depending on experience and fit. Meaningful equity and benefits in a fast-growing mission-driven public benefit corporation.",
+          "We care about what you can do, not just what's on your resume.",
+          "Our application asks about your experience and gives you an opportunity to share a product you've helped create. We're especially interested in understanding the problems you've solved, the decisions you've made, and your specific contributions.",
+          "No cover letter or introductory video required.",
         ],
       },
     ],
     application: {
-      questions: [
+      portfolio: {
+        label: "Portfolio, case study, or product link",
+        hint: "Share a link to your portfolio, a product you've worked on, or an example of your work. If you don't have a public portfolio, that's okay. You can describe your work in the questions below.",
+        required: false,
+      },
+      steps: [
         {
-          id: "schools",
-          label:
-            "Tell us about your experience working in or with schools. What was your role, and what did that time teach you about how schools actually work?",
+          title: "Your experience",
+          questions: [
+            {
+              id: "public-school",
+              kind: "choice",
+              label:
+                "Have you worked directly in a U.S. public school, including a district or public charter school?",
+              required: true,
+              options: [...PUBLIC_SCHOOL_YES, "No"],
+            },
+            {
+              id: "public-school-role",
+              kind: "text",
+              label: "Briefly describe your role and the type of school or schools you worked with.",
+              required: false,
+              rows: 3,
+              showIf: { questionId: "public-school", answers: PUBLIC_SCHOOL_YES },
+            },
+            {
+              id: "edtech",
+              kind: "choice",
+              label: "Have you worked at an education-focused technology company?",
+              required: true,
+              options: ["Yes", "No"],
+            },
+            {
+              id: "edtech-role",
+              kind: "text",
+              label: "What company or companies did you work for, and what was your role?",
+              required: false,
+              rows: 3,
+              showIf: { questionId: "edtech", answers: ["Yes"] },
+            },
+          ],
         },
         {
-          id: "limited-information",
-          label:
-            "Describe a time you had to make a difficult decision with limited information. What did you decide, how did you get there, and how did it turn out?",
+          title: "Your product work",
+          questions: [
+            {
+              id: "problem-to-launch",
+              kind: "text",
+              label:
+                "Tell us about a product or significant feature you personally helped take from an identified problem to a launched solution.",
+              hints: [
+                "We're interested in understanding your actual contribution, not just the final product. Briefly walk us through:",
+                "What problem were you trying to solve, and how did you know it mattered? How did you decide what to build? What decisions did you personally own? What happened after it launched?",
+                "Specific examples are much more helpful than polished generalities.",
+              ],
+              required: true,
+              rows: 10,
+              words: { min: 200, max: 300 },
+            },
+            {
+              id: "changed-mind",
+              kind: "text",
+              label:
+                "Tell us about a time when user research or customer feedback caused you to change your mind about what a product needed.",
+              hints: [
+                "What did you originally believe, what did you learn, and how did it affect your decision?",
+              ],
+              required: true,
+              rows: 6,
+              words: { min: 100, max: 150 },
+            },
+          ],
         },
         {
-          id: "complaint-to-feature",
-          label:
-            "Tell us about a user complaint or pain point you turned into a shipped feature. Walk us through how you got from the problem to the solution, and what happened after it launched.",
+          title: "Working at Willow",
+          questions: [
+            {
+              id: "ai-prototyping",
+              kind: "choice",
+              label:
+                "Are you comfortable using AI-assisted development tools to build interactive product prototypes, including writing or generating code with AI?",
+              required: true,
+              options: [
+                "Yes, I already do this",
+                "Yes, I'm learning and excited to develop this skill",
+                "Not currently, but I'm willing to learn",
+                "No",
+              ],
+            },
+            {
+              id: "salary",
+              kind: "choice",
+              label: "What are your salary expectations?",
+              required: true,
+              options: [
+                "$80,000–$95,000",
+                "$95,000–$110,000",
+                "$110,000–$130,000",
+                "I'd like to discuss",
+              ],
+            },
+          ],
         },
       ],
-      videoPrompt:
-        "Record a short video telling us how you use AI in your day-to-day work. Include one example of something you accomplished with AI that would have been much harder, or impossible, without it.",
     },
     interviews: {
       phone: [

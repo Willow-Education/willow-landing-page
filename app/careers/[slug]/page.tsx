@@ -15,7 +15,14 @@ import {
   MapPin,
 } from "@/components/careers/icons";
 import { pageMetadata } from "@/lib/metadata";
-import { CAREERS_EMAIL, getJob, getJobTags, getOpenJobs, type Job } from "@/lib/data/jobs";
+import {
+  CAREERS_EMAIL,
+  getJob,
+  getJobTags,
+  getOpenJobs,
+  type Job,
+  type JobBlock,
+} from "@/lib/data/jobs";
 import { ApplicationForm } from "./ApplicationForm";
 
 // Pre-render a page for every open job at build time.
@@ -49,6 +56,40 @@ function jobFacts(job: Job) {
     { icon: MapPin, label: "Location", value: job.location },
     { icon: CurrencyDollar, label: "Salary", value: job.salary },
   ].filter((fact): fact is typeof fact & { value: string } => Boolean(fact.value));
+}
+
+function SectionBlock({ block }: { block: JobBlock }) {
+  if (typeof block === "string") return <p>{block}</p>;
+
+  if ("subheading" in block) {
+    return (
+      <h3 className="font-heading text-lg md:text-xl font-medium text-heading pt-4 first:pt-0">
+        {block.subheading}
+      </h3>
+    );
+  }
+
+  return (
+    <ul className="space-y-3">
+      {block.map((item) => {
+        const key = typeof item === "string" ? item : item.lead;
+        return (
+          <li key={key} className="flex gap-3">
+            <span className="mt-[5px] md:mt-[6px] flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#ACF7B2]">
+              <Check size={12} weight="bold" className="text-[#062F29]" />
+            </span>
+            {typeof item === "string" ? (
+              <span>{item}</span>
+            ) : (
+              <span>
+                <strong className="font-semibold text-heading">{item.lead}</strong> {item.text}
+              </span>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
 }
 
 const applyButtonClass =
@@ -106,28 +147,17 @@ export default async function JobPage({
         <section className="py-16 md:py-24 bg-white">
           <div className="max-w-6xl mx-auto px-5 md:px-10 lg:px-16 grid lg:grid-cols-[minmax(0,1fr)_320px] gap-12 lg:gap-16 items-start">
             <div className="divide-y divide-gray-200">
-              {job.sections.map((section) => (
-                <div key={section.heading} className="py-10 first:pt-0 last:pb-0">
-                  <h2 className="font-heading text-2xl md:text-[28px] font-medium text-heading mb-5">
-                    {section.heading}
-                  </h2>
+              {job.sections.map((section, i) => (
+                <div key={section.heading ?? i} className="py-10 first:pt-0 last:pb-0">
+                  {section.heading && (
+                    <h2 className="font-heading text-2xl md:text-[28px] font-medium text-heading mb-5">
+                      {section.heading}
+                    </h2>
+                  )}
                   <div className="space-y-4 text-secondary text-base md:text-lg leading-relaxed">
-                    {section.blocks.map((block, i) =>
-                      typeof block === "string" ? (
-                        <p key={i}>{block}</p>
-                      ) : (
-                        <ul key={i} className="space-y-3">
-                          {block.map((item) => (
-                            <li key={item} className="flex gap-3">
-                              <span className="mt-[5px] md:mt-[6px] flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#ACF7B2]">
-                                <Check size={12} weight="bold" className="text-[#062F29]" />
-                              </span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )
-                    )}
+                    {section.blocks.map((block, j) => (
+                      <SectionBlock key={j} block={block} />
+                    ))}
                   </div>
                 </div>
               ))}
@@ -176,8 +206,7 @@ export default async function JobPage({
               Apply for this role
             </h2>
             <p className="text-secondary text-base md:text-lg leading-relaxed mb-10">
-              We read every application. Have your resume, a portfolio link, and a short video
-              ready before you start.
+              We read every application. Have your resume ready before you start.
             </p>
             <div className="rounded-2xl bg-white border border-gray-200 shadow-subtle p-6 md:p-10">
               <ApplicationForm
