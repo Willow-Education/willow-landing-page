@@ -22,16 +22,16 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   async redirects() {
     return [
-      // No positions are open, so the public careers pages send visitors home.
-      // Remove these when a job is posted again; /careers-management is
-      // unaffected.
+      // The careers pages aren't linked from the site. The Product Manager
+      // posting stays reachable by its direct URL; /careers and every other
+      // /careers/* path send visitors home. /careers-management is unaffected.
       {
         source: "/careers",
         destination: "/",
         permanent: false,
       },
       {
-        source: "/careers/:path*",
+        source: "/careers/:path((?!product-manager$).*)",
         destination: "/",
         permanent: false,
       },
